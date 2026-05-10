@@ -291,6 +291,91 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
 </head>
 <body>
 
+<!-- ══ PANTALLA ACTIVACIÓN PRO ══ -->
+<div id="loginScreen" style="min-height:100vh;background:#1a1814;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:36px 28px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.5)">
+
+    <img src="icono-pintorapp.png" alt="PintorApp Pro" style="width:88px;height:88px;object-fit:cover;border-radius:16px;margin-bottom:14px">
+    <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#1a1814;margin-bottom:4px">PintorApp <span style="color:#e8650a">Pro</span></div>
+    <div style="font-size:13px;color:#8a8580;margin-bottom:24px">Introduce tu clave de activación anual</div>
+
+    <input id="claveInput" type="text" maxlength="12" placeholder="XXXX-XXXX-XX"
+      oninput="formatClave(this)" onkeydown="if(event.key==='Enter')activarApp()"
+      style="width:100%;border:2px solid #e8e4df;border-radius:10px;padding:14px;font-size:20px;font-weight:800;font-family:'Syne',sans-serif;text-align:center;letter-spacing:4px;color:#1a1814;outline:none;background:#faf9f7;margin-bottom:10px;transition:border-color .2s"
+      autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+
+    <div id="claveError" style="display:none;background:#fce8e8;color:#a32d2d;font-size:12px;font-weight:600;padding:8px 12px;border-radius:7px;margin-bottom:10px">❌ Clave incorrecta. Inténtalo de nuevo.</div>
+    <div id="claveOk" style="display:none;background:#f0f8f0;color:#2d7a2d;font-size:12px;font-weight:600;padding:8px 12px;border-radius:7px;margin-bottom:10px">✅ Clave correcta. Entrando...</div>
+
+    <button onclick="activarApp()"
+      style="width:100%;background:#e8650a;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;letter-spacing:.3px;transition:background .15s"
+      onmouseover="this.style.background='#ff8534'" onmouseout="this.style.background='#e8650a'">
+      Activar app
+    </button>
+
+    <div style="margin-top:18px;font-size:11px;color:#b4b2a9;line-height:1.7">
+      Clave válida 12 meses desde activación<br>
+      ¿Sin clave? Contacta con<br>
+      <strong style="color:#e8650a">JM Prestige AI Solutions</strong>
+    </div>
+
+    <!-- BOTÓN MAESTRO OCULTO -->
+    <div style="margin-top:16px;text-align:center">
+      <button onclick="abrirMaestro()" style="background:none;border:none;cursor:pointer;color:rgba(0,0,0,0.1);font-size:10px;font-family:monospace;letter-spacing:2px;padding:4px 8px" title="Admin">
+        ···
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANEL PIN MAESTRO ══ -->
+<div id="maestroScreen" style="display:none;min-height:100vh;background:#0d1117;align-items:center;justify-content:center;padding:20px;flex-direction:column">
+  <div style="text-align:center;margin-bottom:28px">
+    <img src="icono-pintorapp.png" style="width:52px;height:52px;border-radius:10px;border:2px solid #e8650a;margin-bottom:12px">
+    <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:#e8650a;letter-spacing:3px;margin-bottom:6px">PINTORAPP PRO · MASTER</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.3);letter-spacing:2px;text-transform:uppercase">Acceso restringido</div>
+  </div>
+
+  <!-- INDICADORES PIN -->
+  <div style="display:flex;gap:12px;margin-bottom:28px;justify-content:center" id="pinDots">
+    <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
+    <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
+  </div>
+
+  <!-- TECLADO NUMÉRICO -->
+  <div style="display:grid;grid-template-columns:repeat(3,80px);gap:10px;justify-content:center">
+    <button class="pkey" onclick="pinPress('1')">1</button>
+    <button class="pkey" onclick="pinPress('2')">2</button>
+    <button class="pkey" onclick="pinPress('3')">3</button>
+    <button class="pkey" onclick="pinPress('4')">4</button>
+    <button class="pkey" onclick="pinPress('5')">5</button>
+    <button class="pkey" onclick="pinPress('6')">6</button>
+    <button class="pkey" onclick="pinPress('7')">7</button>
+    <button class="pkey" onclick="pinPress('8')">8</button>
+    <button class="pkey" onclick="pinPress('9')">9</button>
+    <button class="pkey pkey-del" onclick="pinDel()">⌫</button>
+    <button class="pkey" onclick="pinPress('0')">0</button>
+    <button class="pkey pkey-ok" onclick="pinOk()">OK</button>
+  </div>
+
+  <div id="pinError" style="display:none;margin-top:18px;font-size:12px;color:#e8650a;letter-spacing:1px">PIN INCORRECTO</div>
+  <button onclick="cerrarMaestro()" style="margin-top:24px;background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);border-radius:7px;padding:8px 20px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">← Volver</button>
+</div>
+
+<style>
+.pdot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:transparent;transition:all .15s}
+.pdot.active{background:#e8650a;border-color:#e8650a}
+.pkey{width:80px;height:72px;background:#161b22;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:24px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s}
+.pkey:hover{background:#21262d;border-color:#e8650a;color:#e8650a}
+.pkey:active{transform:scale(.95);background:#e8650a;color:#fff}
+.pkey-del{font-size:18px;color:rgba(255,255,255,.5)}
+.pkey-ok{background:#e8650a;color:#fff;border-color:#e8650a}
+.pkey-ok:hover{background:#ff8534;border-color:#ff8534;color:#fff}
+</style>
+
+<!-- APP (oculta hasta activación) -->
+<div id="appContent" style="display:none">
+
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="brand">
@@ -1293,5 +1378,100 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
+</div><!-- /appContent -->
+
+<script>
+/* ══ PIN MAESTRO ══ */
+const PIN_MAESTRO='191256';
+let pinActual='';
+
+function abrirMaestro(){
+  document.getElementById('loginScreen').style.display='none';
+  const m=document.getElementById('maestroScreen');
+  m.style.display='flex';
+  pinActual='';actualizarDots();
+}
+function cerrarMaestro(){
+  document.getElementById('maestroScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  pinActual='';actualizarDots();
+  document.getElementById('pinError').style.display='none';
+}
+function pinPress(n){
+  if(pinActual.length>=6)return;
+  pinActual+=n;actualizarDots();
+  if(pinActual.length===6) setTimeout(pinOk,300);
+}
+function pinDel(){pinActual=pinActual.slice(0,-1);actualizarDots();}
+function pinOk(){
+  if(pinActual===PIN_MAESTRO){
+    window.location.href='master.html';
+  } else {
+    document.getElementById('pinError').style.display='block';
+    document.querySelectorAll('.pdot').forEach(d=>{d.style.background='#a32d2d';d.style.borderColor='#a32d2d';});
+    setTimeout(()=>{pinActual='';actualizarDots();document.getElementById('pinError').style.display='none';},1200);
+  }
+}
+function actualizarDots(){
+  document.querySelectorAll('.pdot').forEach((d,i)=>{
+    d.classList.toggle('active',i<pinActual.length);
+  });
+}
+
+
+const CLAVES_PRO=[
+  'PINT-2026-PR','PINT-2026-P2','PINT-2026-P3',
+  'PINT-2026-P4','PINT-2026-P5','PINT-2026-P6',
+  'PINT-2026-P7','PINT-2026-P8','PINT-2026-P9',
+  'UNIT-2026-PR','JMPR-2026-01','JMPR-2026-02',
+  'DEMO-2026-PR'
+];
+
+function formatClave(input){
+  let v=input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4);
+  if(v.length>9) v=v.slice(0,9)+'-'+v.slice(9);
+  input.value=v.slice(0,12);
+  document.getElementById('claveError').style.display='none';
+  // Resaltar borde si tiene formato correcto
+  input.style.borderColor=v.length===12?'#e8650a':'#e8e4df';
+}
+
+function activarApp(){
+  const clave=document.getElementById('claveInput').value.trim().toUpperCase();
+  const err=document.getElementById('claveError');
+  const ok=document.getElementById('claveOk');
+  err.style.display='none';ok.style.display='none';
+
+  // Verificar clave guardada (persistencia)
+  const claveGuardada=localStorage.getItem('pintorapp_clave');
+  const claveValida=CLAVES_PRO.includes(clave)||(claveGuardada&&CLAVES_PRO.includes(claveGuardada));
+
+  if(CLAVES_PRO.includes(clave)||clave===claveGuardada){
+    ok.style.display='block';
+    localStorage.setItem('pintorapp_clave',clave||claveGuardada);
+    localStorage.setItem('pintorapp_activada','si');
+    setTimeout(()=>{
+      document.getElementById('loginScreen').style.display='none';
+      document.getElementById('appContent').style.display='block';
+    },900);
+  } else {
+    err.style.display='block';
+    document.getElementById('claveInput').style.borderColor='#a32d2d';
+    setTimeout(()=>document.getElementById('claveInput').style.borderColor='#e8e4df',2000);
+  }
+}
+
+// Auto-login si ya tiene clave guardada
+(function(){
+  const c=localStorage.getItem('pintorapp_clave');
+  const a=localStorage.getItem('pintorapp_activada');
+  if(c&&a==='si'&&CLAVES_PRO.includes(c)){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appContent').style.display='block';
+  }
+})();
+</script>
+
 </body>
 </html>
