@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#e8650a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PintorApp Pro">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icono-pintorapp.png">
 <title>PintorApp Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -18,9 +24,11 @@
 html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:100vh;font-size:16px;overflow-x:hidden}
 
 /* TOPBAR */
-.topbar{background:var(--ink);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:200}
-.brand{font-family:var(--fd);font-size:19px;font-weight:800;color:#fff;letter-spacing:-.5px}
-.brand span{color:var(--o)}
+.topbar{background:var(--ink);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:200}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-logo{height:38px;width:auto;border-radius:8px;object-fit:contain}
+.brand-txt{font-family:var(--fd);font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.brand-txt span{color:var(--o)}
 .probadge{background:var(--o);color:#fff;font-size:10px;font-weight:700;font-family:var(--fd);padding:3px 9px;border-radius:4px;letter-spacing:1px}
 .topuser{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.65);font-size:13px}
 .ava{width:32px;height:32px;border-radius:50%;background:var(--o);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;font-family:var(--fd);flex-shrink:0}
@@ -285,7 +293,10 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="brand">Pintor<span>App</span></div>
+  <div class="brand">
+    <img src="icono-pintorapp.png" alt="PintorApp" class="brand-logo">
+    <div class="brand-txt">Pintor<span>App</span></div>
+  </div>
   <div class="probadge">PRO</div>
   <div class="topuser">
     <span id="topNombre">Herreruela Pintura</span>
@@ -1272,6 +1283,14 @@ function actualizarColorHex(v){
     document.getElementById('pColor').value=v;
     document.documentElement.style.setProperty('--o',v);
   }
+}
+/* ══ SERVICE WORKER ══ */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .then(()=>console.log('PintorApp PWA lista'))
+      .catch(e=>console.log('SW error:',e));
+  });
 }
 </script>
 </body>
