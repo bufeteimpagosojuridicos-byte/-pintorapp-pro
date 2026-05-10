@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="PintorApp Pro">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icono-pintorapp.png">
-<title>PintorApp Pro</title>
+<title>PintorApp Pro v3</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -304,25 +304,25 @@ if('serviceWorker' in navigator){
 const PIN_MAESTRO='191256';
 let pinActual='';
 
-function abrirMaestro(){
+window.abrirMaestro=function abrirMaestro(){
   document.getElementById('loginScreen').style.display='none';
   const m=document.getElementById('maestroScreen');
   m.style.display='flex';
   pinActual='';actualizarDots();
 }
-function cerrarMaestro(){
+window.cerrarMaestro=function cerrarMaestro(){
   document.getElementById('maestroScreen').style.display='none';
   document.getElementById('loginScreen').style.display='flex';
   pinActual='';actualizarDots();
   document.getElementById('pinError').style.display='none';
 }
-function pinPress(n){
+window.pinPress=function pinPress(n){
   if(pinActual.length>=6)return;
   pinActual+=n;actualizarDots();
   if(pinActual.length===6) setTimeout(pinOk,300);
 }
-function pinDel(){pinActual=pinActual.slice(0,-1);actualizarDots();}
-function pinOk(){
+window.pinDel=function pinDel(){pinActual=pinActual.slice(0,-1);actualizarDots();}
+window.pinOk=function pinOk(){
   if(pinActual===PIN_MAESTRO){
     window.location.href='master.html';
   } else {
@@ -346,7 +346,7 @@ const CLAVES_PRO=[
   'DEMO-2026-PR'
 ];
 
-function formatClave(input){
+window.formatClave=function formatClave(input){
   let v=input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
   if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4);
   if(v.length>9) v=v.slice(0,9)+'-'+v.slice(9);
@@ -356,7 +356,7 @@ function formatClave(input){
   input.style.borderColor=v.length===12?'#e8650a':'#e8e4df';
 }
 
-function activarApp(){
+window.activarApp=function activarApp(){
   const clave=document.getElementById('claveInput').value.trim().toUpperCase();
   const err=document.getElementById('claveError');
   const ok=document.getElementById('claveOk');
@@ -494,7 +494,7 @@ window.onload=function(){
 };
 
 /* ══ NAV ══ */
-function showP(id,el){
+window.showP=function showP(id,el){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tnt').forEach(t=>t.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
@@ -1479,3 +1479,4 @@ function actualizarColorHex(v){
 
 </body>
 </html>
+
