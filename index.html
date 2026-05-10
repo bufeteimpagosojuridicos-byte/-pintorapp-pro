@@ -290,597 +290,6 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
 </style>
 </head>
 <body>
-
-<!-- ══ PANTALLA ACTIVACIÓN PRO ══ -->
-<div id="loginScreen" style="min-height:100vh;background:#1a1814;display:flex;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:20px;padding:36px 28px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.5)">
-
-    <img src="icono-pintorapp.png" alt="PintorApp Pro" style="width:88px;height:88px;object-fit:cover;border-radius:16px;margin-bottom:14px">
-    <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#1a1814;margin-bottom:4px">PintorApp <span style="color:#e8650a">Pro</span></div>
-    <div style="font-size:13px;color:#8a8580;margin-bottom:24px">Introduce tu clave de activación anual</div>
-
-    <input id="claveInput" type="text" maxlength="12" placeholder="XXXX-XXXX-XX"
-      oninput="formatClave(this)" onkeydown="if(event.key==='Enter')activarApp()"
-      style="width:100%;border:2px solid #e8e4df;border-radius:10px;padding:14px;font-size:20px;font-weight:800;font-family:'Syne',sans-serif;text-align:center;letter-spacing:4px;color:#1a1814;outline:none;background:#faf9f7;margin-bottom:10px;transition:border-color .2s"
-      autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
-
-    <div id="claveError" style="display:none;background:#fce8e8;color:#a32d2d;font-size:12px;font-weight:600;padding:8px 12px;border-radius:7px;margin-bottom:10px">❌ Clave incorrecta. Inténtalo de nuevo.</div>
-    <div id="claveOk" style="display:none;background:#f0f8f0;color:#2d7a2d;font-size:12px;font-weight:600;padding:8px 12px;border-radius:7px;margin-bottom:10px">✅ Clave correcta. Entrando...</div>
-
-    <button onclick="activarApp()"
-      style="width:100%;background:#e8650a;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;letter-spacing:.3px;transition:background .15s"
-      onmouseover="this.style.background='#ff8534'" onmouseout="this.style.background='#e8650a'">
-      Activar app
-    </button>
-
-    <div style="margin-top:18px;font-size:11px;color:#b4b2a9;line-height:1.7">
-      Clave válida 12 meses desde activación<br>
-      ¿Sin clave? Contacta con<br>
-      <strong style="color:#e8650a">JM Prestige AI Solutions</strong>
-    </div>
-
-    <!-- BOTÓN MAESTRO OCULTO -->
-    <div style="margin-top:16px;text-align:center">
-      <button onclick="abrirMaestro()" style="background:none;border:none;cursor:pointer;color:rgba(0,0,0,0.1);font-size:10px;font-family:monospace;letter-spacing:2px;padding:4px 8px" title="Admin">
-        ···
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ PANEL PIN MAESTRO ══ -->
-<div id="maestroScreen" style="display:none;min-height:100vh;background:#0d1117;align-items:center;justify-content:center;padding:20px;flex-direction:column">
-  <div style="text-align:center;margin-bottom:28px">
-    <img src="icono-pintorapp.png" style="width:52px;height:52px;border-radius:10px;border:2px solid #e8650a;margin-bottom:12px">
-    <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:#e8650a;letter-spacing:3px;margin-bottom:6px">PINTORAPP PRO · MASTER</div>
-    <div style="font-size:11px;color:rgba(255,255,255,.3);letter-spacing:2px;text-transform:uppercase">Acceso restringido</div>
-  </div>
-
-  <!-- INDICADORES PIN -->
-  <div style="display:flex;gap:12px;margin-bottom:28px;justify-content:center" id="pinDots">
-    <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
-    <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
-  </div>
-
-  <!-- TECLADO NUMÉRICO -->
-  <div style="display:grid;grid-template-columns:repeat(3,80px);gap:10px;justify-content:center">
-    <button class="pkey" onclick="pinPress('1')">1</button>
-    <button class="pkey" onclick="pinPress('2')">2</button>
-    <button class="pkey" onclick="pinPress('3')">3</button>
-    <button class="pkey" onclick="pinPress('4')">4</button>
-    <button class="pkey" onclick="pinPress('5')">5</button>
-    <button class="pkey" onclick="pinPress('6')">6</button>
-    <button class="pkey" onclick="pinPress('7')">7</button>
-    <button class="pkey" onclick="pinPress('8')">8</button>
-    <button class="pkey" onclick="pinPress('9')">9</button>
-    <button class="pkey pkey-del" onclick="pinDel()">⌫</button>
-    <button class="pkey" onclick="pinPress('0')">0</button>
-    <button class="pkey pkey-ok" onclick="pinOk()">OK</button>
-  </div>
-
-  <div id="pinError" style="display:none;margin-top:18px;font-size:12px;color:#e8650a;letter-spacing:1px">PIN INCORRECTO</div>
-  <button onclick="cerrarMaestro()" style="margin-top:24px;background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);border-radius:7px;padding:8px 20px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">← Volver</button>
-</div>
-
-<style>
-.pdot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:transparent;transition:all .15s}
-.pdot.active{background:#e8650a;border-color:#e8650a}
-.pkey{width:80px;height:72px;background:#161b22;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:24px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s}
-.pkey:hover{background:#21262d;border-color:#e8650a;color:#e8650a}
-.pkey:active{transform:scale(.95);background:#e8650a;color:#fff}
-.pkey-del{font-size:18px;color:rgba(255,255,255,.5)}
-.pkey-ok{background:#e8650a;color:#fff;border-color:#e8650a}
-.pkey-ok:hover{background:#ff8534;border-color:#ff8534;color:#fff}
-</style>
-
-<!-- APP (oculta hasta activación) -->
-<div id="appContent" style="display:none">
-
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="brand">
-    <img src="icono-pintorapp.png" alt="PintorApp" class="brand-logo">
-    <div class="brand-txt">Pintor<span>App</span></div>
-  </div>
-  <div class="probadge">PRO</div>
-  <div class="topuser">
-    <span id="topNombre">Herreruela Pintura</span>
-    <div class="ava" id="topAva">HP</div>
-  </div>
-</div>
-
-<!-- TOP NAV -->
-<div class="tnav">
-  <button class="tnt active" onclick="showP('presup',this)">
-    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>Presupuestos
-  </button>
-  <button class="tnt" onclick="showP('nuevo',this)">
-    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo
-  </button>
-  <button class="tnt" onclick="showP('clientes',this)">
-    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clientes
-  </button>
-  <button class="tnt" onclick="showP('perfil',this)">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Perfil Pro
-  </button>
-</div>
-
-<div class="main">
-
-<!-- ══════════════ PRESUPUESTOS ══════════════ -->
-<div class="panel active" id="panel-presup">
-
-  <!-- STATS DASHBOARD -->
-  <div class="stats">
-    <div class="stat"><div class="slb">Este mes</div><div class="sv ac">8</div><div class="ss">presupuestos</div></div>
-    <div class="stat"><div class="slb">Aceptados</div><div class="sv gn">5</div><div class="ss">62% conversión</div></div>
-    <div class="stat"><div class="slb">Facturado</div><div class="sv">4.820€</div><div class="ss">mayo 2026</div></div>
-    <div class="stat"><div class="slb">Pendiente</div><div class="sv ac">2.340€</div><div class="ss">3 presupuestos</div></div>
-  </div>
-
-  <!-- LISTA -->
-  <div>
-    <div class="sec-hdr">
-      <div class="sec-title">Presupuestos recientes</div>
-      <button class="btn new" onclick="showP('nuevo',document.querySelectorAll('.tnt')[1])">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo presupuesto
-      </button>
-    </div>
-    <div class="plist" style="margin-top:10px">
-      <div class="prow sel" onclick="selP(this,'P-2026-008','Familia Martínez','Salón + dormitorio principal','1.840','enviado')">
-        <div class="pnum">P-2026-008</div>
-        <div><div class="pcli">Familia Martínez</div><div class="pdesc">Salón + dormitorio principal · Lleida</div></div>
-        <div><div class="pimp">1.840 €</div><div class="badge be">✉ Enviado</div></div>
-      </div>
-      <div class="prow" onclick="selP(this,'P-2026-007','Bar Can Pepet','Pintura exterior fachada','3.200','aceptado')">
-        <div class="pnum">P-2026-007</div>
-        <div><div class="pcli">Bar Can Pepet</div><div class="pdesc">Pintura exterior fachada · Lleida</div></div>
-        <div><div class="pimp">3.200 €</div><div class="badge ba">✓ Aceptado</div></div>
-      </div>
-      <div class="prow" onclick="selP(this,'P-2026-006','Comunitat Veïns Pau','Escalera y portal','980','pendiente')">
-        <div class="pnum">P-2026-006</div>
-        <div><div class="pcli">Comunitat Veïns Pau</div><div class="pdesc">Escalera y portal · Lleida</div></div>
-        <div><div class="pimp">980 €</div><div class="badge bp">⏱ Pendiente</div></div>
-      </div>
-      <div class="prow" onclick="selP(this,'P-2026-005','Hostal La Pista','Habitaciones planta 2','2.150','aceptado')">
-        <div class="pnum">P-2026-005</div>
-        <div><div class="pcli">Hostal La Pista</div><div class="pdesc">Habitaciones planta 2 · Lleida</div></div>
-        <div><div class="pimp">2.150 €</div><div class="badge ba">✓ Aceptado</div></div>
-      </div>
-      <div class="prow" onclick="selP(this,'P-2026-004','Obra Nova SL','Fachada bloque completo','4.800','rechazado')">
-        <div class="pnum">P-2026-004</div>
-        <div><div class="pcli">Obra Nova SL</div><div class="pdesc">Fachada bloque completo · Lleida</div></div>
-        <div><div class="pimp">4.800 €</div><div class="badge br">✕ Rechazado</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DETALLE -->
-  <div class="det" id="detPanel">
-    <div class="det-hd">
-      <div class="det-logo">
-        <div class="det-logo-box" id="detLogoBox">HP</div>
-        <div>
-          <div class="det-emp" id="detEmp">Herreruela Pintura i Decoració</div>
-          <div class="det-emp-sub">NIF: 12345678A · Lleida</div>
-        </div>
-      </div>
-      <div class="det-nbadge" id="detNum">P-2026-008</div>
-    </div>
-    <div class="det-body">
-      <div class="det-grid">
-        <div class="df"><label>Cliente</label><p id="detCli">Familia Martínez</p></div>
-        <div class="df"><label>Descripción</label><p id="detDesc">Salón + dormitorio principal</p></div>
-        <div class="df"><label>Fecha</label><p>10 mayo 2026</p></div>
-        <div class="df"><label>Validez</label><p>30 días</p></div>
-      </div>
-      <table class="ptable">
-        <thead><tr>
-          <th style="width:45%">Descripción</th><th>Ud</th><th class="nr">Precio</th><th class="nr">Total</th>
-        </tr></thead>
-        <tbody>
-          <tr><td>Preparación y lijado de superficies</td><td>1</td><td class="nr">320 €</td><td class="nr">320 €</td></tr>
-          <tr><td>Pintura plástica blanca (2 manos) · Leroy Merlin</td><td>45 m²</td><td class="nr">18 €</td><td class="nr">810 €</td></tr>
-          <tr><td>Color NCS S 2010-Y30R techo y molduras</td><td>20 m²</td><td class="nr">22 €</td><td class="nr">440 €</td></tr>
-          <tr><td>Desplazamiento y limpieza final</td><td>1</td><td class="nr">120 €</td><td class="nr">120 €</td></tr>
-        </tbody>
-      </table>
-      <div class="subtotal">Subtotal: 1.690 € · IVA 21%: 354,90 €</div>
-      <div class="totrow">
-        <span class="totlbl">Total presupuesto</span>
-        <span class="totval"><span id="detTotal">1.840</span> €</span>
-      </div>
-      <div class="actrow">
-        <button class="btn pri" onclick="openEmail()">
-          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Enviar por email
-        </button>
-        <button class="btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF</button>
-        <button class="btn"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicar</button>
-        <button class="btn suc"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Marcar aceptado</button>
-      </div>
-      <!-- EMAIL MODAL -->
-      <div class="embox" id="embox">
-        <div class="eminner">
-          <div class="emhd">
-            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            <span>Enviar presupuesto con tu logo</span>
-          </div>
-          <div class="embody">
-            <div class="ef"><label>Email del cliente</label><input type="email" id="emDest" value="martinez@gmail.com"></div>
-            <div class="ef"><label>Asunto</label><input type="text" id="emAsunto" value="Presupuesto P-2026-008 · Herreruela Pintura"></div>
-            <div class="ef"><label>Mensaje personalizado</label><textarea id="emMsg">Estimada familia Martínez, adjunto encontrará el presupuesto solicitado. Quedo a su disposición para cualquier consulta.</textarea></div>
-            <div class="eprev">
-              <div class="eprev-hd">
-                <div class="eprev-logo" id="emPrevLogo">HP</div>
-                <div>
-                  <div class="eprev-nm" id="emPrevNm">Herreruela Pintura i Decoració</div>
-                  <div class="eprev-sub">herreruela@gmail.com · 973 000 000</div>
-                </div>
-              </div>
-              <div class="eprev-body">
-                Presupuesto <strong id="emPrevNum">P-2026-008</strong> por importe de <strong id="emPrevTotal">1.840 €</strong><br>
-                <span style="color:var(--ink3)">Enlace para ver online · PDF adjunto · Válido 30 días</span>
-              </div>
-            </div>
-            <div class="emacts">
-              <button class="btn-cancel" onclick="closeEmail()">Cancelar</button>
-              <button class="btn-send"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Enviar ahora</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /presupuestos -->
-
-<!-- ══════════════ NUEVO PRESUPUESTO ══════════════ -->
-<div class="panel" id="panel-nuevo">
-
-  <!-- BARRA MICRÓFONO GLOBAL -->
-  <div style="background:var(--ink);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px">
-    <button id="micGlobal" onclick="toggleMicGlobal()" style="width:46px;height:46px;border-radius:50%;background:var(--o);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s" aria-label="Micrófono global">
-      <svg id="micGlobalIco" viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-    </button>
-    <div style="flex:1">
-      <div id="micGlobalLabel" style="font-family:var(--fd);font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">Pulsa y habla — dicta cualquier dato</div>
-      <div id="micGlobalTx" style="font-size:12px;color:rgba(255,255,255,.5);font-style:italic">Listo para escuchar...</div>
-    </div>
-    <div id="micGlobalDot" style="display:none">
-      <div style="width:10px;height:10px;border-radius:50%;background:#ff4444;animation:blink 1s infinite"></div>
-    </div>
-  </div>
-
-  <div class="card card-p">
-    <div class="ctitle" style="display:flex;align-items:center;justify-content:space-between">
-      <span>Datos del cliente y obra</span>
-      <span style="font-size:11px;color:var(--ink3);font-weight:400">🎤 Pulsa el micro naranja para dictar</span>
-    </div>
-    <div class="fgrid">
-      <div class="fi">
-        <label>Cliente</label>
-        <div style="display:flex;gap:5px;align-items:center">
-          <input type="text" placeholder="Nombre o empresa" id="nCli" style="flex:1">
-          <button onclick="micField('nCli','nombre del cliente')" style="width:34px;height:34px;border-radius:6px;background:var(--obg);border:1px solid var(--ol);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Dictar nombre cliente">
-            <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--o);fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-          </button>
-        </div>
-      </div>
-      <div class="fi">
-        <label>Email cliente</label>
-        <input type="email" placeholder="cliente@email.com" id="nEmail">
-      </div>
-      <div class="fi full">
-        <label>Descripción de la obra</label>
-        <div style="display:flex;gap:5px;align-items:center">
-          <input type="text" placeholder="Ej: Pintura salón y dormitorios" id="nDesc" style="flex:1">
-          <button onclick="micField('nDesc','descripción de la obra')" style="width:34px;height:34px;border-radius:6px;background:var(--obg);border:1px solid var(--ol);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Dictar descripción">
-            <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--o);fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-          </button>
-        </div>
-      </div>
-      <div class="fi">
-        <label>Dirección obra</label>
-        <div style="display:flex;gap:5px;align-items:center">
-          <input type="text" placeholder="Calle, número, localidad" id="nDir" style="flex:1">
-          <button onclick="micField('nDir','dirección de la obra')" style="width:34px;height:34px;border-radius:6px;background:var(--obg);border:1px solid var(--ol);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Dictar dirección">
-            <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--o);fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-          </button>
-        </div>
-      </div>
-      <div class="fi"><label>IVA</label>
-        <select id="nIva"><option value="21">IVA 21%</option><option value="10">IVA 10%</option><option value="0">Sin IVA</option></select>
-      </div>
-    </div>
-  </div>
-
-  <div class="card card-p">
-    <div class="ctitle" style="display:flex;align-items:center;justify-content:space-between">
-      <span>Partidas del presupuesto</span>
-      <button onclick="micPartida()" style="background:var(--o);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fb);display:flex;align-items:center;gap:5px">
-        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-        Dictar partida
-      </button>
-    </div>
-    <div class="ph">
-      <span>Descripción</span><span>Ud / m²</span><span>€/ud</span><span>Total</span><span></span>
-    </div>
-    <div id="partidaList"></div>
-    <button class="btnadd" onclick="addPartida()">
-      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir partida manualmente
-    </button>
-    <div class="nuevo-total">
-      <span class="nt-lbl">Total presupuesto</span>
-      <span class="nt-val"><span id="nTotal">0,00</span> €</span>
-    </div>
-    <div class="brow">
-      <button class="btn pri" onclick="guardarNuevo()">
-        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar y generar PDF
-      </button>
-      <button class="btn" onclick="showP('presup',document.querySelectorAll('.tnt')[0])">Cancelar</button>
-    </div>
-  </div>
-
-  <!-- CALCULADORA INTEGRADA EN NUEVO -->
-  <div class="card card-p">
-    <div class="ctitle">📐 Calculadora de superficies</div>
-    <div class="seg">
-      <button class="segb active" onclick="setMode('r',this)">⚡ Rápido (m² suelo)</button>
-      <button class="segb" onclick="setMode('p',this)">🏠 Preciso (hab. por hab.)</button>
-    </div>
-    <div class="cmode active" id="m-r">
-      <div class="cg">
-        <div class="ir"><label>Superficie total de suelo</label><input class="inum" type="number" id="mSuelo" value="110" min="1" oninput="cRapido()"><span class="iunit">m²</span></div>
-        <div class="ir"><label>¿Qué vas a pintar?</label>
-          <select class="isel" id="tipoR" onchange="cRapido()">
-            <option value="2.2">Solo paredes (×2,2)</option>
-            <option value="1.0">Solo techos (×1,0)</option>
-            <option value="2.85" selected>Paredes + techos (×2,85)</option>
-            <option value="3.1">Estimación alta (×3,1)</option>
-          </select>
-        </div>
-      </div>
-      <div style="background:var(--obg);border-radius:var(--rs);padding:10px 13px;display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-size:12px;color:var(--ink3)">Estimación</div><div style="font-size:11px;color:var(--ink3);margin-top:1px" id="rFormula">—</div></div>
-        <div style="font-family:var(--fd);font-size:24px;font-weight:800;color:var(--o)" id="rRapido">—</div>
-      </div>
-    </div>
-    <div class="cmode" id="m-p">
-      <div style="font-size:12px;color:var(--ink3);margin-bottom:9px;line-height:1.5">Añade habitaciones. Fórmula: <strong style="color:var(--ink)">Techo=L×A</strong> · <strong style="color:var(--ink)">Paredes=2×(L+A)×H</strong></div>
-      <div class="habt-hdr"><span>Habitación</span><span>Largo</span><span>Ancho</span><span>Alt.</span><span></span></div>
-      <div id="habList"></div>
-      <button class="btnadd-h" onclick="addHab()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir habitación</button>
-      <div class="cg">
-        <div class="ir"><label>¿Pintar también techos?</label>
-          <select class="isel" id="pintT" onchange="cPreciso()"><option value="si">Sí</option><option value="no">No</option></select>
-        </div>
-        <div class="ir"><label>Restar aberturas (puertas+ventanas)</label><input class="inum" type="number" id="huecos" value="0" min="0" step="0.5" oninput="cPreciso()"><span class="iunit">m²</span></div>
-      </div>
-      <table class="htable" id="htable" style="display:none">
-        <thead><tr><th>Habitación</th><th class="nr">Techo</th><th class="nr">Paredes</th><th class="nr">Total</th></tr></thead>
-        <tbody id="htbody"></tbody>
-        <tfoot id="htfoot"></tfoot>
-      </table>
-    </div>
-    <!-- RESULTADO -->
-    <div class="rp" style="margin-top:10px">
-      <div style="font-family:var(--fd);font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Resultado del cálculo</div>
-      <div class="rg">
-        <div class="rb"><div class="rbl">Paredes</div><div class="rbv" id="rP">0<span> m²</span></div></div>
-        <div class="rb"><div class="rbl">Techos</div><div class="rbv" id="rT">0<span> m²</span></div></div>
-        <div class="rb"><div class="rbl">Huecos</div><div class="rbv" id="rH">0<span> m²</span></div></div>
-      </div>
-      <div class="rtot"><span class="rtl">Total neto a pintar</span><span class="rtv" id="rTot">0 m²</span></div>
-      <div class="pint-sect">
-        <div class="pint-label">Pintura necesaria</div>
-        <div class="cg" style="background:rgba(255,255,255,.05);margin-bottom:8px">
-          <div class="ir"><label style="color:rgba(255,255,255,.7);font-size:13px">Rendimiento</label>
-            <input class="inum" type="number" id="rend" value="11" min="1" step="0.5" oninput="calcPintura()" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;width:72px">
-            <span class="iunit" style="color:rgba(255,255,255,.4)">m²/L</span>
-          </div>
-          <div class="ir" style="margin-bottom:0"><label style="color:rgba(255,255,255,.7);font-size:13px">Número de manos</label>
-            <select id="nManos" onchange="calcPintura()" style="border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:7px 9px;font-size:13px;background:rgba(255,255,255,.1);color:#fff;font-family:var(--fb)">
-              <option value="1">1 mano</option><option value="2" selected>2 manos</option><option value="3">3 manos</option>
-            </select>
-          </div>
-        </div>
-        <div class="pg">
-          <div class="pb-blk"><div class="pb-lbl">Litros totales</div><div class="pb-val" id="pL">0 L</div></div>
-          <div class="pb-blk"><div class="pb-lbl">Botes 15 L</div><div class="pb-val" id="pB15">0 uds</div></div>
-          <div class="pb-blk"><div class="pb-lbl">Botes 4 L</div><div class="pb-val" id="pB4">0 uds</div></div>
-        </div>
-      </div>
-      <div class="pform" id="pForm">—</div>
-      <div class="psug" id="pSug"></div>
-      <div class="brow">
-        <button class="btn pri" onclick="usarCalcEnPartida()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir al presupuesto</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SELECTOR DE COLOR INTEGRADO -->
-  <div class="card card-p">
-    <div class="ctitle">🎨 Seleccionar color para el presupuesto</div>
-    <div class="ctabs">
-      <button class="ctab active" onclick="swCol('NCS',this)">NCS</button>
-      <button class="ctab" onclick="swCol('RAL',this)">RAL</button>
-      <button class="ctab" onclick="swCol('RGB',this)">RGB</button>
-    </div>
-    <div class="csbar">
-      <input type="text" id="cs" placeholder="Buscar código o nombre..." oninput="filtCol()">
-      <button class="btn" onclick="micColor()" style="padding:8px 10px" title="Dictar">
-        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-      </button>
-    </div>
-    <div class="ccnt" id="colCnt"></div>
-    <div class="cgrid" id="cg"></div>
-    <div class="cdet" id="cdet">
-      <div class="cdsw" id="cdSw"></div>
-      <div class="cdi">
-        <div class="cdn" id="cdN">—</div>
-        <div class="cdc" id="cdC1">—</div>
-        <div class="cdc" id="cdC2">—</div>
-        <div class="cdc" id="cdC3">—</div>
-      </div>
-      <div class="cdacts">
-        <button class="btn-use" onclick="addColorPartida()">Añadir al presupuesto</button>
-        <button class="btn-cpy" id="cpyBtn" onclick="copyCode()">Copiar código</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- DICTADO VOZ EN NUEVO -->
-  <div class="card card-p">
-    <div class="ctitle">🎤 Dictar medidas u observaciones</div>
-    <div class="mzone" id="mz">
-      <button class="mbtn" id="mb" onclick="toggleMic()" aria-label="Micrófono">
-        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-      </button>
-      <div id="ml" style="font-size:13px;font-weight:500;color:var(--ink2)">Pulsa para hablar</div>
-      <div style="font-size:12px;color:var(--ink3);max-width:280px;line-height:1.5">Di medidas, colores, observaciones... La app las detecta automáticamente</div>
-    </div>
-    <div style="margin-top:9px">
-      <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Texto detectado:</div>
-      <div class="tx mt" id="tx">El texto dictado aparecerá aquí...</div>
-    </div>
-    <div style="margin-top:9px">
-      <div class="ctitle" style="margin-bottom:8px">⚡ Frases de ejemplo</div>
-      <div class="chips">
-        <button class="chip" onclick="sim('Salón 6 metros por 4, altura 2,70, paredes y techo')">📐 Medidas salón</button>
-        <button class="chip" onclick="sim('Dormitorio 3,8 por 3,2 altura 2,60 pintar paredes')">🛏 Dormitorio</button>
-        <button class="chip" onclick="sim('Color blanco roto RAL 9001, dos manos sin imprimación')">🎨 Color RAL</button>
-        <button class="chip" onclick="sim('Pintura NCS S 1002-Y color crema suave, una mano')">🖌 Color NCS</button>
-        <button class="chip" onclick="sim('Fachada exterior 45 metros cuadrados pintura siloxánica')">🏗 Fachada</button>
-        <button class="chip" onclick="sim('Preparar superficie, lijar y limpiar antes de pintar')">🔧 Preparación</button>
-      </div>
-    </div>
-    <div class="card card-p" id="vocRes" style="display:none;margin-top:10px;background:var(--s)">
-      <div class="ctitle" style="margin-bottom:9px">✅ Datos detectados</div>
-      <div class="vfg" id="vf"></div>
-      <div class="brow">
-        <button class="btn pri" onclick="addVozPartida()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir como partida</button>
-        <button class="btn" onclick="clearVoz()"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>Limpiar</button>
-      </div>
-    </div>
-  </div>
-</div><!-- /nuevo -->
-
-<!-- ══════════════ CLIENTES ══════════════ -->
-<div class="panel" id="panel-clientes">
-  <div class="card card-p">
-    <div class="ctitle">Clientes</div>
-  </div>
-  <div class="card">
-    <div style="padding:12px 15px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:13px;color:var(--ink3)">5 clientes registrados</div>
-      <button class="btn new" style="font-size:12px;padding:7px 12px"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo cliente</button>
-    </div>
-    <div id="cliList"></div>
-  </div>
-  <!-- STATS ADMIN -->
-  <div class="card card-p">
-    <div class="ctitle">📊 Administración</div>
-    <div class="admin-grid">
-      <div class="acrd"><div class="al">Ingresos mayo</div><div class="av gn">4.820€</div><div class="as">+12% vs abril</div>
-        <div class="pbar-wrap"><div class="pbar-fill gn" style="width:62%"></div></div>
-      </div>
-      <div class="acrd"><div class="al">Pendiente cobro</div><div class="av ac">2.340€</div><div class="as">3 presupuestos</div>
-        <div class="pbar-wrap"><div class="pbar-fill" style="width:38%"></div></div>
-      </div>
-      <div class="acrd"><div class="al">Tasa conversión</div><div class="av">62%</div><div class="as">5 de 8 aceptados</div>
-        <div class="pbar-wrap"><div class="pbar-fill" style="width:62%;background:var(--ink)"></div></div>
-      </div>
-      <div class="acrd"><div class="al">Rechazados</div><div class="av rd">1</div><div class="as">P-2026-004 · 4.800€</div>
-        <div class="pbar-wrap"><div class="pbar-fill" style="width:12%;background:#a32d2d"></div></div>
-      </div>
-    </div>
-    <div style="margin-top:12px">
-      <div style="font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Presupuestos por estado</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px">
-          <div style="width:10px;height:10px;border-radius:50%;background:var(--g);flex-shrink:0"></div>
-          <span style="flex:1;color:var(--ink2)">Aceptados</span>
-          <span style="font-family:var(--fd);font-weight:700;color:var(--ink)">5</span>
-          <div style="width:80px;height:5px;background:var(--s);border-radius:3px;overflow:hidden"><div style="width:62%;height:100%;background:var(--g);border-radius:3px"></div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px">
-          <div style="width:10px;height:10px;border-radius:50%;background:#f0bc00;flex-shrink:0"></div>
-          <span style="flex:1;color:var(--ink2)">Pendientes</span>
-          <span style="font-family:var(--fd);font-weight:700;color:var(--ink)">2</span>
-          <div style="width:80px;height:5px;background:var(--s);border-radius:3px;overflow:hidden"><div style="width:25%;height:100%;background:#f0bc00;border-radius:3px"></div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px">
-          <div style="width:10px;height:10px;border-radius:50%;background:#1a5ca8;flex-shrink:0"></div>
-          <span style="flex:1;color:var(--ink2)">Enviados</span>
-          <span style="font-family:var(--fd);font-weight:700;color:var(--ink)">1</span>
-          <div style="width:80px;height:5px;background:var(--s);border-radius:3px;overflow:hidden"><div style="width:13%;height:100%;background:#1a5ca8;border-radius:3px"></div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px">
-          <div style="width:10px;height:10px;border-radius:50%;background:#a32d2d;flex-shrink:0"></div>
-          <span style="flex:1;color:var(--ink2)">Rechazados</span>
-          <span style="font-family:var(--fd);font-weight:700;color:var(--ink)">1</span>
-          <div style="width:80px;height:5px;background:var(--s);border-radius:3px;overflow:hidden"><div style="width:13%;height:100%;background:#a32d2d;border-radius:3px"></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div><!-- /clientes -->
-
-<!-- ══════════════ PERFIL PRO ══════════════ -->
-<div class="panel" id="panel-perfil">
-  <div class="probanner">
-    <div class="pbt">
-      <strong>Versión <span>PRO</span> activa</strong>
-      <p>Email personalizado · Sin patrocinadores · PDF con tu marca</p>
-    </div>
-    <button class="btn-key"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>Clave: ••••••••</button>
-  </div>
-
-  <div class="card card-p">
-    <div class="ctitle">Tu perfil profesional</div>
-    <div class="fgrid">
-      <div class="fi"><label>Nombre empresa</label><input type="text" id="pNombre" value="Herreruela Pintura i Decoració"></div>
-      <div class="fi"><label>NIF</label><input type="text" id="pNif" value="12345678A"></div>
-      <div class="fi"><label>Email profesional</label><input type="email" id="pEmail" value="herreruela@gmail.com"></div>
-      <div class="fi"><label>Teléfono</label><input type="tel" id="pTel" value="973 000 000"></div>
-      <div class="fi"><label>Ciudad</label><input type="text" id="pCiudad" value="Lleida"></div>
-      <div class="fi"><label>Web (opcional)</label><input type="text" id="pWeb" placeholder="www.tu-empresa.com"></div>
-      <div class="fi full"><label>Color corporativo</label>
-        <div class="color-picker-row">
-          <input type="color" id="pColor" value="#e8650a" oninput="actualizarColor(this.value)" style="width:42px;height:36px;padding:2px;border-radius:6px;border:1px solid var(--b);cursor:pointer">
-          <input type="text" id="pColorHex" value="#e8650a" style="width:90px" oninput="actualizarColorHex(this.value)">
-          <span style="font-size:12px;color:var(--ink3)">Color principal en emails y PDFs</span>
-        </div>
-      </div>
-      <div class="fi"><label>IVA por defecto</label>
-        <select id="pIva"><option value="21" selected>21%</option><option value="10">10%</option><option value="7">7% (IGIC Canarias)</option><option value="0">Sin IVA</option></select>
-      </div>
-      <div class="fi"><label>Logo (URL o nombre)</label><input type="text" id="pLogo" placeholder="URL de tu logo"></div>
-    </div>
-    <div class="brow">
-      <button class="btn pri" onclick="guardarPerfil()">
-        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar perfil
-      </button>
-    </div>
-  </div>
-
-  <div class="card card-p">
-    <div class="ctitle">📊 Administración rápida</div>
-    <div class="admin-grid">
-      <div class="acrd"><div class="al">Presupuestos mes</div><div class="av">8</div><div class="as">mayo 2026</div></div>
-      <div class="acrd"><div class="al">Clientes activos</div><div class="av gn">5</div><div class="as">total registrados</div></div>
-      <div class="acrd"><div class="al">Facturado año</div><div class="av ac">18.440€</div><div class="as">ene–may 2026</div></div>
-      <div class="acrd"><div class="al">Emails enviados</div><div class="av">12</div><div class="as">este mes · EmailJS</div></div>
-    </div>
-  </div>
-</div><!-- /perfil -->
-
-</div><!-- /main -->
-</div><!-- /appContent -->
-
-
-</body>
-
 <script>
 /* ══ SERVICE WORKER ══ */
 if('serviceWorker' in navigator){
@@ -1476,5 +885,597 @@ function actualizarColorHex(v){
   }
 }
 </script>
+
+<!-- ══ PANTALLA ACTIVACIÓN PRO ══ -->
+<div id="loginScreen" style="min-height:100vh;background:#1a1814;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:36px 28px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.5)">
+
+    <img src="icono-pintorapp.png" alt="PintorApp Pro" style="width:88px;height:88px;object-fit:cover;border-radius:16px;margin-bottom:14px">
+    <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#1a1814;margin-bottom:4px">PintorApp <span style="color:#e8650a">Pro</span></div>
+    <div style="font-size:13px;color:#8a8580;margin-bottom:24px">Introduce tu clave de activación anual</div>
+
+    <input id="claveInput" type="text" maxlength="12" placeholder="XXXX-XXXX-XX"
+      oninput="formatClave(this)" onkeydown="if(event.key==='Enter')activarApp()"
+      style="width:100%;border:2px solid #e8e4df;border-radius:10px;padding:14px;font-size:20px;font-weight:800;font-family:'Syne',sans-serif;text-align:center;letter-spacing:4px;color:#1a1814;outline:none;background:#faf9f7;margin-bottom:10px;transition:border-color .2s"
+      autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+
+    <div id="claveError" style="display:none;background:#fce8e8;color:#a32d2d;font-size:12px;font-weight:600;padding:8px 12px;border-radius:7px;margin-bottom:10px">❌ Clave incorrecta. Inténtalo de nuevo.</div>
+    <div id="claveOk" style="display:none;background:#f0f8f0;color:#2d7a2d;font-size:12px;font-weight:600;padding:8px 12px;border-radius:7px;margin-bottom:10px">✅ Clave correcta. Entrando...</div>
+
+    <button onclick="activarApp()"
+      style="width:100%;background:#e8650a;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;letter-spacing:.3px;transition:background .15s"
+      onmouseover="this.style.background='#ff8534'" onmouseout="this.style.background='#e8650a'">
+      Activar app
+    </button>
+
+    <div style="margin-top:18px;font-size:11px;color:#b4b2a9;line-height:1.7">
+      Clave válida 12 meses desde activación<br>
+      ¿Sin clave? Contacta con<br>
+      <strong style="color:#e8650a">JM Prestige AI Solutions</strong>
+    </div>
+
+    <!-- BOTÓN MAESTRO OCULTO -->
+    <div style="margin-top:16px;text-align:center">
+      <button onclick="abrirMaestro()" style="background:none;border:none;cursor:pointer;color:rgba(0,0,0,0.1);font-size:10px;font-family:monospace;letter-spacing:2px;padding:4px 8px" title="Admin">
+        ···
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANEL PIN MAESTRO ══ -->
+<div id="maestroScreen" style="display:none;min-height:100vh;background:#0d1117;align-items:center;justify-content:center;padding:20px;flex-direction:column">
+  <div style="text-align:center;margin-bottom:28px">
+    <img src="icono-pintorapp.png" style="width:52px;height:52px;border-radius:10px;border:2px solid #e8650a;margin-bottom:12px">
+    <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:#e8650a;letter-spacing:3px;margin-bottom:6px">PINTORAPP PRO · MASTER</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.3);letter-spacing:2px;text-transform:uppercase">Acceso restringido</div>
+  </div>
+
+  <!-- INDICADORES PIN -->
+  <div style="display:flex;gap:12px;margin-bottom:28px;justify-content:center" id="pinDots">
+    <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
+    <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
+  </div>
+
+  <!-- TECLADO NUMÉRICO -->
+  <div style="display:grid;grid-template-columns:repeat(3,80px);gap:10px;justify-content:center">
+    <button class="pkey" onclick="pinPress('1')">1</button>
+    <button class="pkey" onclick="pinPress('2')">2</button>
+    <button class="pkey" onclick="pinPress('3')">3</button>
+    <button class="pkey" onclick="pinPress('4')">4</button>
+    <button class="pkey" onclick="pinPress('5')">5</button>
+    <button class="pkey" onclick="pinPress('6')">6</button>
+    <button class="pkey" onclick="pinPress('7')">7</button>
+    <button class="pkey" onclick="pinPress('8')">8</button>
+    <button class="pkey" onclick="pinPress('9')">9</button>
+    <button class="pkey pkey-del" onclick="pinDel()">⌫</button>
+    <button class="pkey" onclick="pinPress('0')">0</button>
+    <button class="pkey pkey-ok" onclick="pinOk()">OK</button>
+  </div>
+
+  <div id="pinError" style="display:none;margin-top:18px;font-size:12px;color:#e8650a;letter-spacing:1px">PIN INCORRECTO</div>
+  <button onclick="cerrarMaestro()" style="margin-top:24px;background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);border-radius:7px;padding:8px 20px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">← Volver</button>
+</div>
+
+<style>
+.pdot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:transparent;transition:all .15s}
+.pdot.active{background:#e8650a;border-color:#e8650a}
+.pkey{width:80px;height:72px;background:#161b22;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:24px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s}
+.pkey:hover{background:#21262d;border-color:#e8650a;color:#e8650a}
+.pkey:active{transform:scale(.95);background:#e8650a;color:#fff}
+.pkey-del{font-size:18px;color:rgba(255,255,255,.5)}
+.pkey-ok{background:#e8650a;color:#fff;border-color:#e8650a}
+.pkey-ok:hover{background:#ff8534;border-color:#ff8534;color:#fff}
+</style>
+
+<!-- APP (oculta hasta activación) -->
+<div id="appContent" style="display:none">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <img src="icono-pintorapp.png" alt="PintorApp" class="brand-logo">
+    <div class="brand-txt">Pintor<span>App</span></div>
+  </div>
+  <div class="probadge">PRO</div>
+  <div class="topuser">
+    <span id="topNombre">Herreruela Pintura</span>
+    <div class="ava" id="topAva">HP</div>
+  </div>
+</div>
+
+<!-- TOP NAV -->
+<div class="tnav">
+  <button class="tnt active" onclick="showP('presup',this)">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>Presupuestos
+  </button>
+  <button class="tnt" onclick="showP('nuevo',this)">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo
+  </button>
+  <button class="tnt" onclick="showP('clientes',this)">
+    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clientes
+  </button>
+  <button class="tnt" onclick="showP('perfil',this)">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Perfil Pro
+  </button>
+</div>
+
+<div class="main">
+
+<!-- ══════════════ PRESUPUESTOS ══════════════ -->
+<div class="panel active" id="panel-presup">
+
+  <!-- STATS DASHBOARD -->
+  <div class="stats">
+    <div class="stat"><div class="slb">Este mes</div><div class="sv ac">8</div><div class="ss">presupuestos</div></div>
+    <div class="stat"><div class="slb">Aceptados</div><div class="sv gn">5</div><div class="ss">62% conversión</div></div>
+    <div class="stat"><div class="slb">Facturado</div><div class="sv">4.820€</div><div class="ss">mayo 2026</div></div>
+    <div class="stat"><div class="slb">Pendiente</div><div class="sv ac">2.340€</div><div class="ss">3 presupuestos</div></div>
+  </div>
+
+  <!-- LISTA -->
+  <div>
+    <div class="sec-hdr">
+      <div class="sec-title">Presupuestos recientes</div>
+      <button class="btn new" onclick="showP('nuevo',document.querySelectorAll('.tnt')[1])">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo presupuesto
+      </button>
+    </div>
+    <div class="plist" style="margin-top:10px">
+      <div class="prow sel" onclick="selP(this,'P-2026-008','Familia Martínez','Salón + dormitorio principal','1.840','enviado')">
+        <div class="pnum">P-2026-008</div>
+        <div><div class="pcli">Familia Martínez</div><div class="pdesc">Salón + dormitorio principal · Lleida</div></div>
+        <div><div class="pimp">1.840 €</div><div class="badge be">✉ Enviado</div></div>
+      </div>
+      <div class="prow" onclick="selP(this,'P-2026-007','Bar Can Pepet','Pintura exterior fachada','3.200','aceptado')">
+        <div class="pnum">P-2026-007</div>
+        <div><div class="pcli">Bar Can Pepet</div><div class="pdesc">Pintura exterior fachada · Lleida</div></div>
+        <div><div class="pimp">3.200 €</div><div class="badge ba">✓ Aceptado</div></div>
+      </div>
+      <div class="prow" onclick="selP(this,'P-2026-006','Comunitat Veïns Pau','Escalera y portal','980','pendiente')">
+        <div class="pnum">P-2026-006</div>
+        <div><div class="pcli">Comunitat Veïns Pau</div><div class="pdesc">Escalera y portal · Lleida</div></div>
+        <div><div class="pimp">980 €</div><div class="badge bp">⏱ Pendiente</div></div>
+      </div>
+      <div class="prow" onclick="selP(this,'P-2026-005','Hostal La Pista','Habitaciones planta 2','2.150','aceptado')">
+        <div class="pnum">P-2026-005</div>
+        <div><div class="pcli">Hostal La Pista</div><div class="pdesc">Habitaciones planta 2 · Lleida</div></div>
+        <div><div class="pimp">2.150 €</div><div class="badge ba">✓ Aceptado</div></div>
+      </div>
+      <div class="prow" onclick="selP(this,'P-2026-004','Obra Nova SL','Fachada bloque completo','4.800','rechazado')">
+        <div class="pnum">P-2026-004</div>
+        <div><div class="pcli">Obra Nova SL</div><div class="pdesc">Fachada bloque completo · Lleida</div></div>
+        <div><div class="pimp">4.800 €</div><div class="badge br">✕ Rechazado</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETALLE -->
+  <div class="det" id="detPanel">
+    <div class="det-hd">
+      <div class="det-logo">
+        <div class="det-logo-box" id="detLogoBox">HP</div>
+        <div>
+          <div class="det-emp" id="detEmp">Herreruela Pintura i Decoració</div>
+          <div class="det-emp-sub">NIF: 12345678A · Lleida</div>
+        </div>
+      </div>
+      <div class="det-nbadge" id="detNum">P-2026-008</div>
+    </div>
+    <div class="det-body">
+      <div class="det-grid">
+        <div class="df"><label>Cliente</label><p id="detCli">Familia Martínez</p></div>
+        <div class="df"><label>Descripción</label><p id="detDesc">Salón + dormitorio principal</p></div>
+        <div class="df"><label>Fecha</label><p>10 mayo 2026</p></div>
+        <div class="df"><label>Validez</label><p>30 días</p></div>
+      </div>
+      <table class="ptable">
+        <thead><tr>
+          <th style="width:45%">Descripción</th><th>Ud</th><th class="nr">Precio</th><th class="nr">Total</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Preparación y lijado de superficies</td><td>1</td><td class="nr">320 €</td><td class="nr">320 €</td></tr>
+          <tr><td>Pintura plástica blanca (2 manos) · Leroy Merlin</td><td>45 m²</td><td class="nr">18 €</td><td class="nr">810 €</td></tr>
+          <tr><td>Color NCS S 2010-Y30R techo y molduras</td><td>20 m²</td><td class="nr">22 €</td><td class="nr">440 €</td></tr>
+          <tr><td>Desplazamiento y limpieza final</td><td>1</td><td class="nr">120 €</td><td class="nr">120 €</td></tr>
+        </tbody>
+      </table>
+      <div class="subtotal">Subtotal: 1.690 € · IVA 21%: 354,90 €</div>
+      <div class="totrow">
+        <span class="totlbl">Total presupuesto</span>
+        <span class="totval"><span id="detTotal">1.840</span> €</span>
+      </div>
+      <div class="actrow">
+        <button class="btn pri" onclick="openEmail()">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Enviar por email
+        </button>
+        <button class="btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF</button>
+        <button class="btn"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicar</button>
+        <button class="btn suc"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Marcar aceptado</button>
+      </div>
+      <!-- EMAIL MODAL -->
+      <div class="embox" id="embox">
+        <div class="eminner">
+          <div class="emhd">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span>Enviar presupuesto con tu logo</span>
+          </div>
+          <div class="embody">
+            <div class="ef"><label>Email del cliente</label><input type="email" id="emDest" value="martinez@gmail.com"></div>
+            <div class="ef"><label>Asunto</label><input type="text" id="emAsunto" value="Presupuesto P-2026-008 · Herreruela Pintura"></div>
+            <div class="ef"><label>Mensaje personalizado</label><textarea id="emMsg">Estimada familia Martínez, adjunto encontrará el presupuesto solicitado. Quedo a su disposición para cualquier consulta.</textarea></div>
+            <div class="eprev">
+              <div class="eprev-hd">
+                <div class="eprev-logo" id="emPrevLogo">HP</div>
+                <div>
+                  <div class="eprev-nm" id="emPrevNm">Herreruela Pintura i Decoració</div>
+                  <div class="eprev-sub">herreruela@gmail.com · 973 000 000</div>
+                </div>
+              </div>
+              <div class="eprev-body">
+                Presupuesto <strong id="emPrevNum">P-2026-008</strong> por importe de <strong id="emPrevTotal">1.840 €</strong><br>
+                <span style="color:var(--ink3)">Enlace para ver online · PDF adjunto · Válido 30 días</span>
+              </div>
+            </div>
+            <div class="emacts">
+              <button class="btn-cancel" onclick="closeEmail()">Cancelar</button>
+              <button class="btn-send"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Enviar ahora</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /presupuestos -->
+
+<!-- ══════════════ NUEVO PRESUPUESTO ══════════════ -->
+<div class="panel" id="panel-nuevo">
+
+  <!-- BARRA MICRÓFONO GLOBAL -->
+  <div style="background:var(--ink);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px">
+    <button id="micGlobal" onclick="toggleMicGlobal()" style="width:46px;height:46px;border-radius:50%;background:var(--o);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s" aria-label="Micrófono global">
+      <svg id="micGlobalIco" viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+    <div style="flex:1">
+      <div id="micGlobalLabel" style="font-family:var(--fd);font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">Pulsa y habla — dicta cualquier dato</div>
+      <div id="micGlobalTx" style="font-size:12px;color:rgba(255,255,255,.5);font-style:italic">Listo para escuchar...</div>
+    </div>
+    <div id="micGlobalDot" style="display:none">
+      <div style="width:10px;height:10px;border-radius:50%;background:#ff4444;animation:blink 1s infinite"></div>
+    </div>
+  </div>
+
+  <div class="card card-p">
+    <div class="ctitle" style="display:flex;align-items:center;justify-content:space-between">
+      <span>Datos del cliente y obra</span>
+      <span style="font-size:11px;color:var(--ink3);font-weight:400">🎤 Pulsa el micro naranja para dictar</span>
+    </div>
+    <div class="fgrid">
+      <div class="fi">
+        <label>Cliente</label>
+        <div style="display:flex;gap:5px;align-items:center">
+          <input type="text" placeholder="Nombre o empresa" id="nCli" style="flex:1">
+          <button onclick="micField('nCli','nombre del cliente')" style="width:34px;height:34px;border-radius:6px;background:var(--obg);border:1px solid var(--ol);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Dictar nombre cliente">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--o);fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="fi">
+        <label>Email cliente</label>
+        <input type="email" placeholder="cliente@email.com" id="nEmail">
+      </div>
+      <div class="fi full">
+        <label>Descripción de la obra</label>
+        <div style="display:flex;gap:5px;align-items:center">
+          <input type="text" placeholder="Ej: Pintura salón y dormitorios" id="nDesc" style="flex:1">
+          <button onclick="micField('nDesc','descripción de la obra')" style="width:34px;height:34px;border-radius:6px;background:var(--obg);border:1px solid var(--ol);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Dictar descripción">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--o);fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="fi">
+        <label>Dirección obra</label>
+        <div style="display:flex;gap:5px;align-items:center">
+          <input type="text" placeholder="Calle, número, localidad" id="nDir" style="flex:1">
+          <button onclick="micField('nDir','dirección de la obra')" style="width:34px;height:34px;border-radius:6px;background:var(--obg);border:1px solid var(--ol);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Dictar dirección">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--o);fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="fi"><label>IVA</label>
+        <select id="nIva"><option value="21">IVA 21%</option><option value="10">IVA 10%</option><option value="0">Sin IVA</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-p">
+    <div class="ctitle" style="display:flex;align-items:center;justify-content:space-between">
+      <span>Partidas del presupuesto</span>
+      <button onclick="micPartida()" style="background:var(--o);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fb);display:flex;align-items:center;gap:5px">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+        Dictar partida
+      </button>
+    </div>
+    <div class="ph">
+      <span>Descripción</span><span>Ud / m²</span><span>€/ud</span><span>Total</span><span></span>
+    </div>
+    <div id="partidaList"></div>
+    <button class="btnadd" onclick="addPartida()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir partida manualmente
+    </button>
+    <div class="nuevo-total">
+      <span class="nt-lbl">Total presupuesto</span>
+      <span class="nt-val"><span id="nTotal">0,00</span> €</span>
+    </div>
+    <div class="brow">
+      <button class="btn pri" onclick="guardarNuevo()">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar y generar PDF
+      </button>
+      <button class="btn" onclick="showP('presup',document.querySelectorAll('.tnt')[0])">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- CALCULADORA INTEGRADA EN NUEVO -->
+  <div class="card card-p">
+    <div class="ctitle">📐 Calculadora de superficies</div>
+    <div class="seg">
+      <button class="segb active" onclick="setMode('r',this)">⚡ Rápido (m² suelo)</button>
+      <button class="segb" onclick="setMode('p',this)">🏠 Preciso (hab. por hab.)</button>
+    </div>
+    <div class="cmode active" id="m-r">
+      <div class="cg">
+        <div class="ir"><label>Superficie total de suelo</label><input class="inum" type="number" id="mSuelo" value="110" min="1" oninput="cRapido()"><span class="iunit">m²</span></div>
+        <div class="ir"><label>¿Qué vas a pintar?</label>
+          <select class="isel" id="tipoR" onchange="cRapido()">
+            <option value="2.2">Solo paredes (×2,2)</option>
+            <option value="1.0">Solo techos (×1,0)</option>
+            <option value="2.85" selected>Paredes + techos (×2,85)</option>
+            <option value="3.1">Estimación alta (×3,1)</option>
+          </select>
+        </div>
+      </div>
+      <div style="background:var(--obg);border-radius:var(--rs);padding:10px 13px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:12px;color:var(--ink3)">Estimación</div><div style="font-size:11px;color:var(--ink3);margin-top:1px" id="rFormula">—</div></div>
+        <div style="font-family:var(--fd);font-size:24px;font-weight:800;color:var(--o)" id="rRapido">—</div>
+      </div>
+    </div>
+    <div class="cmode" id="m-p">
+      <div style="font-size:12px;color:var(--ink3);margin-bottom:9px;line-height:1.5">Añade habitaciones. Fórmula: <strong style="color:var(--ink)">Techo=L×A</strong> · <strong style="color:var(--ink)">Paredes=2×(L+A)×H</strong></div>
+      <div class="habt-hdr"><span>Habitación</span><span>Largo</span><span>Ancho</span><span>Alt.</span><span></span></div>
+      <div id="habList"></div>
+      <button class="btnadd-h" onclick="addHab()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir habitación</button>
+      <div class="cg">
+        <div class="ir"><label>¿Pintar también techos?</label>
+          <select class="isel" id="pintT" onchange="cPreciso()"><option value="si">Sí</option><option value="no">No</option></select>
+        </div>
+        <div class="ir"><label>Restar aberturas (puertas+ventanas)</label><input class="inum" type="number" id="huecos" value="0" min="0" step="0.5" oninput="cPreciso()"><span class="iunit">m²</span></div>
+      </div>
+      <table class="htable" id="htable" style="display:none">
+        <thead><tr><th>Habitación</th><th class="nr">Techo</th><th class="nr">Paredes</th><th class="nr">Total</th></tr></thead>
+        <tbody id="htbody"></tbody>
+        <tfoot id="htfoot"></tfoot>
+      </table>
+    </div>
+    <!-- RESULTADO -->
+    <div class="rp" style="margin-top:10px">
+      <div style="font-family:var(--fd);font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Resultado del cálculo</div>
+      <div class="rg">
+        <div class="rb"><div class="rbl">Paredes</div><div class="rbv" id="rP">0<span> m²</span></div></div>
+        <div class="rb"><div class="rbl">Techos</div><div class="rbv" id="rT">0<span> m²</span></div></div>
+        <div class="rb"><div class="rbl">Huecos</div><div class="rbv" id="rH">0<span> m²</span></div></div>
+      </div>
+      <div class="rtot"><span class="rtl">Total neto a pintar</span><span class="rtv" id="rTot">0 m²</span></div>
+      <div class="pint-sect">
+        <div class="pint-label">Pintura necesaria</div>
+        <div class="cg" style="background:rgba(255,255,255,.05);margin-bottom:8px">
+          <div class="ir"><label style="color:rgba(255,255,255,.7);font-size:13px">Rendimiento</label>
+            <input class="inum" type="number" id="rend" value="11" min="1" step="0.5" oninput="calcPintura()" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;width:72px">
+            <span class="iunit" style="color:rgba(255,255,255,.4)">m²/L</span>
+          </div>
+          <div class="ir" style="margin-bottom:0"><label style="color:rgba(255,255,255,.7);font-size:13px">Número de manos</label>
+            <select id="nManos" onchange="calcPintura()" style="border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:7px 9px;font-size:13px;background:rgba(255,255,255,.1);color:#fff;font-family:var(--fb)">
+              <option value="1">1 mano</option><option value="2" selected>2 manos</option><option value="3">3 manos</option>
+            </select>
+          </div>
+        </div>
+        <div class="pg">
+          <div class="pb-blk"><div class="pb-lbl">Litros totales</div><div class="pb-val" id="pL">0 L</div></div>
+          <div class="pb-blk"><div class="pb-lbl">Botes 15 L</div><div class="pb-val" id="pB15">0 uds</div></div>
+          <div class="pb-blk"><div class="pb-lbl">Botes 4 L</div><div class="pb-val" id="pB4">0 uds</div></div>
+        </div>
+      </div>
+      <div class="pform" id="pForm">—</div>
+      <div class="psug" id="pSug"></div>
+      <div class="brow">
+        <button class="btn pri" onclick="usarCalcEnPartida()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir al presupuesto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SELECTOR DE COLOR INTEGRADO -->
+  <div class="card card-p">
+    <div class="ctitle">🎨 Seleccionar color para el presupuesto</div>
+    <div class="ctabs">
+      <button class="ctab active" onclick="swCol('NCS',this)">NCS</button>
+      <button class="ctab" onclick="swCol('RAL',this)">RAL</button>
+      <button class="ctab" onclick="swCol('RGB',this)">RGB</button>
+    </div>
+    <div class="csbar">
+      <input type="text" id="cs" placeholder="Buscar código o nombre..." oninput="filtCol()">
+      <button class="btn" onclick="micColor()" style="padding:8px 10px" title="Dictar">
+        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+      </button>
+    </div>
+    <div class="ccnt" id="colCnt"></div>
+    <div class="cgrid" id="cg"></div>
+    <div class="cdet" id="cdet">
+      <div class="cdsw" id="cdSw"></div>
+      <div class="cdi">
+        <div class="cdn" id="cdN">—</div>
+        <div class="cdc" id="cdC1">—</div>
+        <div class="cdc" id="cdC2">—</div>
+        <div class="cdc" id="cdC3">—</div>
+      </div>
+      <div class="cdacts">
+        <button class="btn-use" onclick="addColorPartida()">Añadir al presupuesto</button>
+        <button class="btn-cpy" id="cpyBtn" onclick="copyCode()">Copiar código</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DICTADO VOZ EN NUEVO -->
+  <div class="card card-p">
+    <div class="ctitle">🎤 Dictar medidas u observaciones</div>
+    <div class="mzone" id="mz">
+      <button class="mbtn" id="mb" onclick="toggleMic()" aria-label="Micrófono">
+        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </button>
+      <div id="ml" style="font-size:13px;font-weight:500;color:var(--ink2)">Pulsa para hablar</div>
+      <div style="font-size:12px;color:var(--ink3);max-width:280px;line-height:1.5">Di medidas, colores, observaciones... La app las detecta automáticamente</div>
+    </div>
+    <div style="margin-top:9px">
+      <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Texto detectado:</div>
+      <div class="tx mt" id="tx">El texto dictado aparecerá aquí...</div>
+    </div>
+    <div style="margin-top:9px">
+      <div class="ctitle" style="margin-bottom:8px">⚡ Frases de ejemplo</div>
+      <div class="chips">
+        <button class="chip" onclick="sim('Salón 6 metros por 4, altura 2,70, paredes y techo')">📐 Medidas salón</button>
+        <button class="chip" onclick="sim('Dormitorio 3,8 por 3,2 altura 2,60 pintar paredes')">🛏 Dormitorio</button>
+        <button class="chip" onclick="sim('Color blanco roto RAL 9001, dos manos sin imprimación')">🎨 Color RAL</button>
+        <button class="chip" onclick="sim('Pintura NCS S 1002-Y color crema suave, una mano')">🖌 Color NCS</button>
+        <button class="chip" onclick="sim('Fachada exterior 45 metros cuadrados pintura siloxánica')">🏗 Fachada</button>
+        <button class="chip" onclick="sim('Preparar superficie, lijar y limpiar antes de pintar')">🔧 Preparación</button>
+      </div>
+    </div>
+    <div class="card card-p" id="vocRes" style="display:none;margin-top:10px;background:var(--s)">
+      <div class="ctitle" style="margin-bottom:9px">✅ Datos detectados</div>
+      <div class="vfg" id="vf"></div>
+      <div class="brow">
+        <button class="btn pri" onclick="addVozPartida()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir como partida</button>
+        <button class="btn" onclick="clearVoz()"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>Limpiar</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /nuevo -->
+
+<!-- ══════════════ CLIENTES ══════════════ -->
+<div class="panel" id="panel-clientes">
+  <div class="card card-p">
+    <div class="ctitle">Clientes</div>
+  </div>
+  <div class="card">
+    <div style="padding:12px 15px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:13px;color:var(--ink3)">5 clientes registrados</div>
+      <button class="btn new" style="font-size:12px;padding:7px 12px"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo cliente</button>
+    </div>
+    <div id="cliList"></div>
+  </div>
+  <!-- STATS ADMIN -->
+  <div class="card card-p">
+    <div class="ctitle">📊 Administración</div>
+    <div class="admin-grid">
+      <div class="acrd"><div class="al">Ingresos mayo</div><div class="av gn">4.820€</div><div class="as">+12% vs abril</div>
+        <div class="pbar-wrap"><div class="pbar-fill gn" style="width:62%"></div></div>
+      </div>
+      <div class="acrd"><div class="al">Pendiente cobro</div><div class="av ac">2.340€</div><div class="as">3 presupuestos</div>
+        <div class="pbar-wrap"><div class="pbar-fill" style="width:38%"></div></div>
+      </div>
+      <div class="acrd"><div class="al">Tasa conversión</div><div class="av">62%</div><div class="as">5 de 8 aceptados</div>
+        <div class="pbar-wrap"><div class="pbar-fill" style="width:62%;background:var(--ink)"></div></div>
+      </div>
+      <div class="acrd"><div class="al">Rechazados</div><div class="av rd">1</div><div class="as">P-2026-004 · 4.800€</div>
+        <div class="pbar-wrap"><div class="pbar-fill" style="width:12%;background:#a32d2d"></div></div>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Presupuestos por estado</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--g);flex-shrink:0"></div>
+          <span style="flex:1;color:var(--ink2)">Aceptados</span>
+          <span style="font-family:var(--fd);font-weight:700;color:var(--ink)">5</span>
+          <div style="width:80px;height:5px;background:var(--s);border-radius:3px;overflow:hidden"><div style="width:62%;height:100%;background:var(--g);border-radius:3px"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+          <div style="width:10px;height:10px;border-radius:50%;background:#f0bc00;flex-shrink:0"></div>
+          <span style="flex:1;color:var(--ink2)">Pendientes</span>
+          <span style="font-family:var(--fd);font-weight:700;color:var(--ink)">2</span>
+          <div style="width:80px;height:5px;background:var(--s);border-radius:3px;overflow:hidden"><div style="width:25%;height:100%;background:#f0bc00;border-radius:3px"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+          <div style="width:10px;height:10px;border-radius:50%;background:#1a5ca8;flex-shrink:0"></div>
+          <span style="flex:1;color:var(--ink2)">Enviados</span>
+          <span style="font-family:var(--fd);font-weight:700;color:var(--ink)">1</span>
+          <div style="width:80px;height:5px;background:var(--s);border-radius:3px;overflow:hidden"><div style="width:13%;height:100%;background:#1a5ca8;border-radius:3px"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+          <div style="width:10px;height:10px;border-radius:50%;background:#a32d2d;flex-shrink:0"></div>
+          <span style="flex:1;color:var(--ink2)">Rechazados</span>
+          <span style="font-family:var(--fd);font-weight:700;color:var(--ink)">1</span>
+          <div style="width:80px;height:5px;background:var(--s);border-radius:3px;overflow:hidden"><div style="width:13%;height:100%;background:#a32d2d;border-radius:3px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /clientes -->
+
+<!-- ══════════════ PERFIL PRO ══════════════ -->
+<div class="panel" id="panel-perfil">
+  <div class="probanner">
+    <div class="pbt">
+      <strong>Versión <span>PRO</span> activa</strong>
+      <p>Email personalizado · Sin patrocinadores · PDF con tu marca</p>
+    </div>
+    <button class="btn-key"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>Clave: ••••••••</button>
+  </div>
+
+  <div class="card card-p">
+    <div class="ctitle">Tu perfil profesional</div>
+    <div class="fgrid">
+      <div class="fi"><label>Nombre empresa</label><input type="text" id="pNombre" value="Herreruela Pintura i Decoració"></div>
+      <div class="fi"><label>NIF</label><input type="text" id="pNif" value="12345678A"></div>
+      <div class="fi"><label>Email profesional</label><input type="email" id="pEmail" value="herreruela@gmail.com"></div>
+      <div class="fi"><label>Teléfono</label><input type="tel" id="pTel" value="973 000 000"></div>
+      <div class="fi"><label>Ciudad</label><input type="text" id="pCiudad" value="Lleida"></div>
+      <div class="fi"><label>Web (opcional)</label><input type="text" id="pWeb" placeholder="www.tu-empresa.com"></div>
+      <div class="fi full"><label>Color corporativo</label>
+        <div class="color-picker-row">
+          <input type="color" id="pColor" value="#e8650a" oninput="actualizarColor(this.value)" style="width:42px;height:36px;padding:2px;border-radius:6px;border:1px solid var(--b);cursor:pointer">
+          <input type="text" id="pColorHex" value="#e8650a" style="width:90px" oninput="actualizarColorHex(this.value)">
+          <span style="font-size:12px;color:var(--ink3)">Color principal en emails y PDFs</span>
+        </div>
+      </div>
+      <div class="fi"><label>IVA por defecto</label>
+        <select id="pIva"><option value="21" selected>21%</option><option value="10">10%</option><option value="7">7% (IGIC Canarias)</option><option value="0">Sin IVA</option></select>
+      </div>
+      <div class="fi"><label>Logo (URL o nombre)</label><input type="text" id="pLogo" placeholder="URL de tu logo"></div>
+    </div>
+    <div class="brow">
+      <button class="btn pri" onclick="guardarPerfil()">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar perfil
+      </button>
+    </div>
+  </div>
+
+  <div class="card card-p">
+    <div class="ctitle">📊 Administración rápida</div>
+    <div class="admin-grid">
+      <div class="acrd"><div class="al">Presupuestos mes</div><div class="av">8</div><div class="as">mayo 2026</div></div>
+      <div class="acrd"><div class="al">Clientes activos</div><div class="av gn">5</div><div class="as">total registrados</div></div>
+      <div class="acrd"><div class="al">Facturado año</div><div class="av ac">18.440€</div><div class="as">ene–may 2026</div></div>
+      <div class="acrd"><div class="al">Emails enviados</div><div class="av">12</div><div class="as">este mes · EmailJS</div></div>
+    </div>
+  </div>
+</div><!-- /perfil -->
+
+</div><!-- /main -->
+</div><!-- /appContent -->
+
+
+</body>
+
+
 </body>
 </html>
