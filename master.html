@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PintorApp Pro — Master</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--o:#e8650a;--o2:#ff8534;--ink:#0d1117;--ink2:#161b22;--ink3:#21262d;--b:rgba(255,255,255,.08);--fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif}
+html,body{font-family:var(--fb);background:var(--ink);color:#fff;min-height:100vh}
+/* PIN */
+#pinScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.pin-logo{width:56px;height:56px;border-radius:12px;border:2px solid var(--o);margin-bottom:14px;object-fit:cover}
+.pin-badge{font-family:var(--fd);font-size:11px;font-weight:700;color:var(--o);letter-spacing:3px;margin-bottom:6px}
+.pin-sub{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:2px;margin-bottom:28px}
+.pin-h{font-family:var(--fd);font-size:20px;font-weight:800;color:#fff;margin-bottom:22px}
+.dots{display:flex;gap:14px;margin-bottom:28px;justify-content:center}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:transparent;transition:all .15s}
+.dot.on{background:var(--o);border-color:var(--o)}
+.dot.err{background:#a32d2d;border-color:#a32d2d}
+.keypad{display:grid;grid-template-columns:repeat(3,80px);gap:10px;justify-content:center}
+.k{width:80px;height:72px;background:var(--ink2);border:1px solid var(--b);border-radius:12px;color:#fff;font-size:26px;font-weight:700;font-family:var(--fd);cursor:pointer;transition:all .15s}
+.k:hover{background:var(--ink3);border-color:var(--o);color:var(--o)}
+.k:active{transform:scale(.94);background:var(--o);color:#fff}
+.k-del{font-size:18px;color:rgba(255,255,255,.4)}
+.k-ok{background:var(--o);color:#fff;border-color:var(--o)}
+.k-ok:hover{background:var(--o2)}
+.pin-err{margin-top:16px;font-size:12px;color:var(--o);letter-spacing:1px;display:none}
+.pin-hint{margin-top:12px;font-size:11px;color:rgba(255,255,255,.25);letter-spacing:1px}
+/* MASTER APP */
+#masterApp{display:none;flex-direction:column;min-height:100vh}
+.mbar{background:var(--ink2);border-bottom:1px solid var(--b);height:52px;display:flex;align-items:center;padding:0 18px;gap:12px;position:sticky;top:0;z-index:100}
+.mbar-logo{width:30px;height:30px;border-radius:6px;object-fit:cover;border:1px solid var(--o)}
+.mbar-title{font-family:var(--fd);font-size:15px;font-weight:800;color:#fff}
+.mbar-title span{color:var(--o)}
+.mbar-badge{background:var(--o);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:1px}
+.mbar-r{margin-left:auto;display:flex;align-items:center;gap:12px}
+.clock{font-family:var(--fd);font-size:13px;color:var(--o);letter-spacing:1px}
+.btn-salir{background:none;border:1px solid var(--b);color:rgba(255,255,255,.5);border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:var(--fb);transition:all .15s;letter-spacing:.5px}
+.btn-salir:hover{border-color:var(--o);color:var(--o)}
+.layout{display:flex;flex:1;min-height:calc(100vh - 52px)}
+/* SIDEBAR */
+.sidebar{width:230px;background:var(--ink2);border-right:1px solid var(--b);padding:16px;flex-shrink:0;overflow-y:auto}
+.sb-title{font-size:10px;color:rgba(255,255,255,.3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.stat{background:var(--ink3);border-radius:8px;padding:10px 12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+.stat .sl{font-size:11px;color:rgba(255,255,255,.6)}
+.stat .sv{font-family:var(--fd);font-size:20px;font-weight:800}
+.sv-t{color:#fff}.sv-a{color:#5dca5d}.sv-p{color:#f0bc00}.sv-c{color:#e24b4a}
+.search{width:100%;background:var(--ink3);border:1px solid var(--b);border-radius:7px;padding:8px 11px;color:#fff;font-size:13px;font-family:var(--fb);margin:12px 0 8px;outline:none}
+.search:focus{border-color:var(--o)}
+.fbts{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.fb{padding:4px 9px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--b);background:var(--ink3);color:rgba(255,255,255,.5);font-family:var(--fb);transition:all .15s}
+.fb.active{background:var(--o);color:#fff;border-color:var(--o)}
+.cli{background:var(--ink3);border-radius:7px;padding:9px 11px;margin-bottom:5px;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.cli:hover{border-color:var(--o)}
+.cli-nm{font-size:13px;font-weight:500;color:#fff;margin-bottom:3px}
+.cli-row{display:flex;justify-content:space-between;align-items:center}
+.cli-key{font-size:10px;color:rgba(255,255,255,.3);font-family:monospace}
+.badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+.b-act{background:#0d2e0d;color:#5dca5d}.b-pru{background:#2e2200;color:#f0bc00}.b-cad{background:#2e0d0d;color:#e24b4a}
+/* CONTENT */
+.content{flex:1;padding:20px;overflow-y:auto}
+.mtabs{display:flex;gap:0;border-bottom:1px solid var(--b);margin-bottom:20px}
+.mtab{padding:11px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:2px solid transparent;font-family:var(--fb);transition:all .15s}
+.mtab.active{color:var(--o);border-color:var(--o)}
+.mpanel{display:none}.mpanel.active{display:block}
+.fsec{background:var(--ink2);border:1px solid var(--b);border-radius:10px;padding:18px 20px;margin-bottom:16px}
+.fs-title{font-family:var(--fd);font-size:11px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fi label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px}
+.fi input,.fi select{width:100%;background:var(--ink3);border:1px solid var(--b);border-radius:7px;padding:9px 11px;font-size:13px;font-family:var(--fb);color:#fff;outline:none;transition:border-color .15s}
+.fi input:focus,.fi select:focus{border-color:var(--o)}
+.fi select option{background:var(--ink2)}
+.key-box{background:var(--ink);border:2px solid var(--o);border-radius:10px;padding:14px;text-align:center;margin:14px 0}
+.key-val{font-family:var(--fd);font-size:24px;font-weight:800;color:var(--o);letter-spacing:5px}
+.key-hint{font-size:11px;color:rgba(255,255,255,.3);margin-top:4px}
+.btn-gen{width:100%;background:var(--o);color:#fff;border:none;border-radius:9px;padding:13px;font-size:14px;font-weight:700;font-family:var(--fd);cursor:pointer;letter-spacing:.5px;transition:background .15s}
+.btn-gen:hover{background:var(--o2)}
+.sharerow{display:flex;gap:8px;margin-top:10px}
+.btn-wa{background:#25d366;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--fb);flex:1}
+.btn-cpy{background:var(--ink3);color:rgba(255,255,255,.7);border:1px solid var(--b);border-radius:8px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:var(--fb);flex:1;transition:all .15s}
+.btn-cpy:hover{border-color:var(--o);color:var(--o)}
+.reg-row{background:var(--ink2);border:1px solid var(--b);border-radius:8px;padding:11px 14px;margin-bottom:7px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px}
+.rr-nm{font-size:13px;font-weight:500;color:#fff}
+.rr-key{font-size:10px;color:rgba(255,255,255,.3);font-family:monospace;margin-top:2px}
+.rr-date{font-size:11px;color:rgba(255,255,255,.35);text-align:right}
+.rr-dias{font-size:12px;font-weight:700}
+.d-ok{color:#5dca5d}.d-warn{color:#f0bc00}.d-bad{color:#e24b4a}
+.empty{text-align:center;padding:30px;font-size:13px;color:rgba(255,255,255,.25)}
+</style>
+</head>
+<body>
+
+<!-- PIN -->
+<div id="pinScreen">
+  <img src="icono-pintorapp.png" class="pin-logo" alt="PintorApp">
+  <div class="pin-badge">PINTORAPP PRO · MASTER</div>
+  <div class="pin-sub">ACCESO RESTRINGIDO</div>
+  <div class="pin-h">Introduce tu PIN de administrador</div>
+  <div class="dots" id="dots">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+  <div class="keypad">
+    <button class="k" onclick="kp('1')">1</button><button class="k" onclick="kp('2')">2</button><button class="k" onclick="kp('3')">3</button>
+    <button class="k" onclick="kp('4')">4</button><button class="k" onclick="kp('5')">5</button><button class="k" onclick="kp('6')">6</button>
+    <button class="k" onclick="kp('7')">7</button><button class="k" onclick="kp('8')">8</button><button class="k" onclick="kp('9')">9</button>
+    <button class="k k-del" onclick="kd()">⌫</button><button class="k" onclick="kp('0')">0</button><button class="k k-ok" onclick="ko()">OK</button>
+  </div>
+  <div class="pin-err" id="pinErr">PIN INCORRECTO</div>
+  <div class="pin-hint">PIN MAESTRO — 6 DÍGITOS</div>
+  <div style="margin-top:18px"><a href="index.html" style="font-size:11px;color:rgba(255,255,255,.2);text-decoration:none">← Volver a la app</a></div>
+</div>
+
+<!-- MASTER APP -->
+<div id="masterApp">
+  <div class="mbar">
+    <img src="icono-pintorapp.png" class="mbar-logo" alt="">
+    <div class="mbar-title">Pintor<span>App</span></div>
+    <div class="mbar-badge">MASTER</div>
+    <div class="mbar-r">
+      <div class="clock" id="clk">00:00:00</div>
+      <button class="btn-salir" onclick="salir()">⏻ SALIR</button>
+    </div>
+  </div>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sb-title">Resumen</div>
+      <div class="stat"><span class="sl">Total</span><span class="sv sv-t" id="sTot">0</span></div>
+      <div class="stat"><span class="sl">Activas</span><span class="sv sv-a" id="sAct">0</span></div>
+      <div class="stat"><span class="sl">Prueba</span><span class="sv sv-p" id="sPru">0</span></div>
+      <div class="stat"><span class="sl">Caducadas</span><span class="sv sv-c" id="sCad">0</span></div>
+      <div style="border-top:1px solid var(--b);margin:12px 0;padding-top:12px">
+        <div class="sb-title">Clientes</div>
+        <input class="search" type="text" placeholder="Buscar cliente..." oninput="filtrarTxt(this.value)">
+        <div class="fbts">
+          <button class="fb active" onclick="setFiltro('todas',this)">TODAS</button>
+          <button class="fb" onclick="setFiltro('activa',this)">ACTIVAS</button>
+          <button class="fb" onclick="setFiltro('prueba',this)">PRUEBA</button>
+          <button class="fb" onclick="setFiltro('caducada',this)">CADUCADAS</button>
+        </div>
+        <div id="cliList"></div>
+      </div>
+    </div>
+    <!-- CONTENT -->
+    <div class="content">
+      <div class="mtabs">
+        <div class="mtab active" onclick="showTab('nueva',this)">🔑 Nueva licencia</div>
+        <div class="mtab" onclick="showTab('config',this)">⚙️ Configuración</div>
+        <div class="mtab" onclick="showTab('registro',this)">📋 Registro</div>
+      </div>
+
+      <!-- NUEVA -->
+      <div class="mpanel active" id="tab-nueva">
+        <div class="fsec">
+          <div class="fs-title">Datos del pintor</div>
+          <div class="fgrid">
+            <div class="fi"><label>Nombre / Empresa</label><input id="mNom" type="text" placeholder="Ej: García Pintura SL"></div>
+            <div class="fi"><label>Contacto</label><input id="mCon" type="text" placeholder="Nombre y apellidos"></div>
+            <div class="fi"><label>Teléfono WhatsApp</label><input id="mTel" type="tel" placeholder="+34 6XX XXX XXX"></div>
+            <div class="fi"><label>Email</label><input id="mEml" type="email" placeholder="correo@empresa.com"></div>
+            <div class="fi"><label>Localidad</label><input id="mLoc" type="text" placeholder="Ciudad, provincia"></div>
+            <div class="fi"><label>Notas internas</label><input id="mNot" type="text" placeholder="Referido por..."></div>
+          </div>
+        </div>
+        <div class="fsec">
+          <div class="fs-title">Configuración de licencia</div>
+          <div class="fgrid">
+            <div class="fi"><label>Tipo de licencia</label>
+              <select id="mTipo">
+                <option value="anual">✅ Anual completa (12 meses)</option>
+                <option value="prueba">🎁 30 días GRATIS prueba</option>
+                <option value="demo">👁 Demo (7 días)</option>
+              </select>
+            </div>
+            <div class="fi"><label>Precio acordado (€)</label><input id="mPre" type="number" placeholder="149" min="0"></div>
+          </div>
+          <div class="key-box">
+            <div class="key-val" id="keyVal">XXXX-XXXX-XX</div>
+            <div class="key-hint">Se genera automáticamente al pulsar el botón</div>
+          </div>
+          <button class="btn-gen" onclick="generarGuardar()">⚡ GENERAR CLAVE Y GUARDAR</button>
+          <div class="sharerow" id="shareRow" style="display:none">
+            <button class="btn-wa" onclick="enviarWA()">📱 Enviar por WhatsApp</button>
+            <button class="btn-cpy" id="cpyBtn" onclick="copiarClave()">📋 Copiar clave</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONFIG -->
+      <div class="mpanel" id="tab-config">
+        <div class="fsec">
+          <div class="fs-title">Configuración del sistema</div>
+          <div class="fgrid">
+            <div class="fi"><label>PIN maestro actual</label><input type="password" id="cfgPinA" placeholder="••••••" maxlength="6"></div>
+            <div class="fi"><label>Nuevo PIN maestro</label><input type="password" id="cfgPinN" placeholder="••••••" maxlength="6"></div>
+            <div class="fi"><label>Tu WhatsApp (envíos)</label><input type="tel" id="cfgWA" value="+34643223301"></div>
+            <div class="fi"><label>Precio anual por defecto (€)</label><input type="number" id="cfgPre" value="149"></div>
+          </div>
+          <div style="margin-top:14px">
+            <button class="btn-gen" style="max-width:220px" onclick="guardarCfg()">Guardar configuración</button>
+          </div>
+          <div id="cfgMsg" style="display:none;margin-top:10px;font-size:12px;color:#5dca5d;font-weight:600">✅ Configuración guardada</div>
+        </div>
+        <div class="fsec">
+          <div class="fs-title">⚠️ Zona peligrosa</div>
+          <button onclick="if(confirm('¿Borrar TODAS las licencias?'))borrarTodo()" style="background:#2e0d0d;color:#e24b4a;border:1px solid #e24b4a;border-radius:7px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:var(--fb)">🗑 Borrar todas las licencias</button>
+        </div>
+      </div>
+
+      <!-- REGISTRO -->
+      <div class="mpanel" id="tab-registro">
+        <div class="fsec">
+          <div class="fs-title">Registro de licencias</div>
+          <div id="regList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PIN_M=localStorage.getItem('pap_pin')||'191256';
+let pinV='';
+const dotsEl=document.querySelectorAll('.dot');
+
+function kp(n){if(pinV.length>=6)return;pinV+=n;ud();if(pinV.length===6)setTimeout(ko,300);}
+function kd(){pinV=pinV.slice(0,-1);ud();}
+function ko(){
+  if(pinV===PIN_M){
+    document.getElementById('pinScreen').style.display='none';
+    const ma=document.getElementById('masterApp');
+    ma.style.display='flex';ma.style.flexDirection='column';
+    startClk();cargar();
+  } else {
+    document.getElementById('pinErr').style.display='block';
+    dotsEl.forEach(d=>d.classList.add('err'));
+    setTimeout(()=>{pinV='';ud();document.getElementById('pinErr').style.display='none';dotsEl.forEach(d=>d.classList.remove('err'));},1200);
+  }
+}
+function ud(){dotsEl.forEach((d,i)=>{d.classList.toggle('on',i<pinV.length);d.classList.remove('err');});}
+function salir(){
+  document.getElementById('masterApp').style.display='none';
+  document.getElementById('pinScreen').style.display='flex';
+  pinV='';ud();
+}
+function startClk(){
+  setInterval(()=>{
+    const n=new Date();
+    document.getElementById('clk').textContent=
+      String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');
+  },1000);
+}
+
+/* DATOS */
+let lics=JSON.parse(localStorage.getItem('pap_licencias')||'[]');
+let filtro='todas';
+
+function cargar(){stats();renderCli();renderReg();}
+function caducada(l){return l.fechaExp&&new Date(l.fechaExp)<new Date();}
+function diasR(l){if(!l.fechaExp)return 999;return Math.max(0,Math.ceil((new Date(l.fechaExp)-new Date())/(864e5)));}
+
+function stats(){
+  document.getElementById('sTot').textContent=lics.length;
+  document.getElementById('sAct').textContent=lics.filter(l=>l.tipo==='anual'&&!caducada(l)).length;
+  document.getElementById('sPru').textContent=lics.filter(l=>l.tipo!=='anual').length;
+  document.getElementById('sCad').textContent=lics.filter(l=>caducada(l)).length;
+}
+
+function renderCli(txt=''){
+  let lista=lics;
+  if(filtro==='activa')lista=lista.filter(l=>l.tipo==='anual'&&!caducada(l));
+  else if(filtro==='prueba')lista=lista.filter(l=>l.tipo!=='anual');
+  else if(filtro==='caducada')lista=lista.filter(l=>caducada(l));
+  if(txt)lista=lista.filter(l=>l.nom.toLowerCase().includes(txt.toLowerCase()));
+  const d=document.getElementById('cliList');
+  if(!lista.length){d.innerHTML='<div style="font-size:12px;color:rgba(255,255,255,.25);text-align:center;padding:12px">Sin resultados</div>';return;}
+  d.innerHTML=lista.map(l=>{
+    const idx=lics.indexOf(l);
+    const bc=caducada(l)?'b-cad':l.tipo==='anual'?'b-act':'b-pru';
+    const st=caducada(l)?'CAD':l.tipo==='anual'?'ACT':'PRU';
+    return `<div class="cli" onclick="selCli(${idx})"><div class="cli-nm">${l.nom}</div>
+    <div class="cli-row"><span class="cli-key">${l.clave}</span><span class="badge ${bc}">${st}</span></div></div>`;
+  }).join('');
+}
+function filtrarTxt(v){renderCli(v);}
+function setFiltro(f,el){filtro=f;document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCli();}
+
+function selCli(i){
+  const l=lics[i];
+  document.getElementById('mNom').value=l.nom||'';
+  document.getElementById('mCon').value=l.con||'';
+  document.getElementById('mTel').value=l.tel||'';
+  document.getElementById('mEml').value=l.eml||'';
+  document.getElementById('mLoc').value=l.loc||'';
+  document.getElementById('mNot').value=l.not||'';
+  document.getElementById('keyVal').textContent=l.clave;
+  document.getElementById('shareRow').style.display='flex';
+  showTab('nueva',document.querySelector('.mtab'));
+}
+
+/* GENERAR */
+function genClave(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+  const r=n=>[...Array(n)].map(()=>c[Math.floor(Math.random()*c.length)]).join('');
+  return r(4)+'-'+r(4)+'-'+r(2);
+}
+function fechaExp(tipo){
+  const d=new Date();
+  if(tipo==='anual')d.setFullYear(d.getFullYear()+1);
+  else if(tipo==='prueba')d.setDate(d.getDate()+30);
+  else d.setDate(d.getDate()+7);
+  return d.toISOString().split('T')[0];
+}
+function generarGuardar(){
+  const nom=document.getElementById('mNom').value.trim();
+  if(!nom){alert('Introduce el nombre del pintor.');return;}
+  const tipo=document.getElementById('mTipo').value;
+  const clave=genClave();
+  const lic={
+    nom,con:document.getElementById('mCon').value,
+    tel:document.getElementById('mTel').value,
+    eml:document.getElementById('mEml').value,
+    loc:document.getElementById('mLoc').value,
+    not:document.getElementById('mNot').value,
+    pre:document.getElementById('mPre').value,
+    tipo,clave,
+    alta:new Date().toISOString().split('T')[0],
+    fechaExp:fechaExp(tipo)
+  };
+  lics.push(lic);
+  localStorage.setItem('pap_licencias',JSON.stringify(lics));
+  document.getElementById('keyVal').textContent=clave;
+  document.getElementById('shareRow').style.display='flex';
+  cargar();
+}
+function enviarWA(){
+  const clave=document.getElementById('keyVal').textContent;
+  const nom=document.getElementById('mNom').value||'pintor';
+  const tel=(document.getElementById('mTel').value||document.getElementById('cfgWA').value).replace(/\D/g,'');
+  const tipo=document.getElementById('mTipo').value;
+  const dias=tipo==='anual'?'12 meses':tipo==='prueba'?'30 días':'7 días';
+  const msg=`Hola ${nom}! 🎨\n\nAquí tienes tu clave de acceso a *PintorApp Pro*:\n\n🔑 *${clave}*\n\nVálida ${dias}. Introdúcela al abrir la app.\n\n📱 https://bufeteimpagosojuridicos-byte.github.io/-pintorapp-pro/\n\n¡Cualquier duda estoy aquí! 💪\n— JM Prestige AI Solutions`;
+  window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
+}
+function copiarClave(){
+  const clave=document.getElementById('keyVal').textContent;
+  navigator.clipboard.writeText(clave).then(()=>{
+    const b=document.getElementById('cpyBtn');b.textContent='✅ Copiada';
+    setTimeout(()=>b.textContent='📋 Copiar clave',1800);
+  });
+}
+
+/* REGISTRO */
+function renderReg(){
+  const d=document.getElementById('regList');
+  if(!lics.length){d.innerHTML='<div class="empty">No hay licencias registradas.</div>';return;}
+  d.innerHTML=[...lics].reverse().map(l=>{
+    const dr=diasR(l);
+    const dc=caducada(l)?'d-bad':dr<30?'d-warn':'d-ok';
+    const dt=caducada(l)?'CADUCADA':dr===999?'Sin fecha':dr+' días';
+    return `<div class="reg-row">
+      <div><div class="rr-nm">${l.nom}</div><div class="rr-key">${l.clave} · ${l.tipo}</div></div>
+      <div class="rr-date"><div>${l.alta||'—'}</div><div style="font-size:10px;color:rgba(255,255,255,.25)">Alta</div></div>
+      <div class="rr-dias ${dc}">${dt}</div>
+    </div>`;
+  }).join('');
+}
+
+/* CONFIG */
+function guardarCfg(){
+  const pa=document.getElementById('cfgPinA').value;
+  const pn=document.getElementById('cfgPinN').value;
+  if(pn&&pa!==PIN_M){alert('PIN actual incorrecto.');return;}
+  if(pn&&pn.length===6)localStorage.setItem('pap_pin',pn);
+  document.getElementById('cfgMsg').style.display='block';
+  setTimeout(()=>document.getElementById('cfgMsg').style.display='none',2000);
+}
+function borrarTodo(){
+  lics=[];localStorage.removeItem('pap_licencias');cargar();
+}
+
+/* TABS */
+function showTab(id,el){
+  document.querySelectorAll('.mpanel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+}
+</script>
+</body>
+</html>
