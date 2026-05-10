@@ -876,6 +876,112 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
 </div><!-- /perfil -->
 
 </div><!-- /main -->
+</div><!-- /appContent -->
+
+<script>
+/* ══ SERVICE WORKER ══ */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .then(()=>console.log('PintorApp PWA lista'))
+      .catch(e=>console.log('SW error:',e));
+  });
+}
+
+<script>
+/* ══ PIN MAESTRO ══ */
+const PIN_MAESTRO='191256';
+let pinActual='';
+
+function abrirMaestro(){
+  document.getElementById('loginScreen').style.display='none';
+  const m=document.getElementById('maestroScreen');
+  m.style.display='flex';
+  pinActual='';actualizarDots();
+}
+function cerrarMaestro(){
+  document.getElementById('maestroScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  pinActual='';actualizarDots();
+  document.getElementById('pinError').style.display='none';
+}
+function pinPress(n){
+  if(pinActual.length>=6)return;
+  pinActual+=n;actualizarDots();
+  if(pinActual.length===6) setTimeout(pinOk,300);
+}
+function pinDel(){pinActual=pinActual.slice(0,-1);actualizarDots();}
+function pinOk(){
+  if(pinActual===PIN_MAESTRO){
+    window.location.href='master.html';
+  } else {
+    document.getElementById('pinError').style.display='block';
+    document.querySelectorAll('.pdot').forEach(d=>{d.style.background='#a32d2d';d.style.borderColor='#a32d2d';});
+    setTimeout(()=>{pinActual='';actualizarDots();document.getElementById('pinError').style.display='none';},1200);
+  }
+}
+function actualizarDots(){
+  document.querySelectorAll('.pdot').forEach((d,i)=>{
+    d.classList.toggle('active',i<pinActual.length);
+  });
+}
+
+
+const CLAVES_PRO=[
+  'PINT-2026-PR','PINT-2026-P2','PINT-2026-P3',
+  'PINT-2026-P4','PINT-2026-P5','PINT-2026-P6',
+  'PINT-2026-P7','PINT-2026-P8','PINT-2026-P9',
+  'UNIT-2026-PR','JMPR-2026-01','JMPR-2026-02',
+  'DEMO-2026-PR'
+];
+
+function formatClave(input){
+  let v=input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4);
+  if(v.length>9) v=v.slice(0,9)+'-'+v.slice(9);
+  input.value=v.slice(0,12);
+  document.getElementById('claveError').style.display='none';
+  // Resaltar borde si tiene formato correcto
+  input.style.borderColor=v.length===12?'#e8650a':'#e8e4df';
+}
+
+function activarApp(){
+  const clave=document.getElementById('claveInput').value.trim().toUpperCase();
+  const err=document.getElementById('claveError');
+  const ok=document.getElementById('claveOk');
+  err.style.display='none';ok.style.display='none';
+
+  // Verificar clave guardada (persistencia)
+  const claveGuardada=localStorage.getItem('pintorapp_clave');
+  const claveValida=CLAVES_PRO.includes(clave)||(claveGuardada&&CLAVES_PRO.includes(claveGuardada));
+
+  if(CLAVES_PRO.includes(clave)||clave===claveGuardada){
+    ok.style.display='block';
+    localStorage.setItem('pintorapp_clave',clave||claveGuardada);
+    localStorage.setItem('pintorapp_activada','si');
+    setTimeout(()=>{
+      document.getElementById('loginScreen').style.display='none';
+      document.getElementById('appContent').style.display='block';
+    },900);
+  } else {
+    err.style.display='block';
+    document.getElementById('claveInput').style.borderColor='#a32d2d';
+    setTimeout(()=>document.getElementById('claveInput').style.borderColor='#e8e4df',2000);
+  }
+}
+
+// Auto-login si ya tiene clave guardada
+(function(){
+  const c=localStorage.getItem('pintorapp_clave');
+  const a=localStorage.getItem('pintorapp_activada');
+  if(c&&a==='si'&&CLAVES_PRO.includes(c)){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appContent').style.display='block';
+  }
+})();
+</script>
+
+
 <script>
 /* ══ DATOS COLORES ══ */
 const COLS={
@@ -1369,109 +1475,6 @@ function actualizarColorHex(v){
     document.documentElement.style.setProperty('--o',v);
   }
 }
-/* ══ SERVICE WORKER ══ */
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('./sw.js')
-      .then(()=>console.log('PintorApp PWA lista'))
-      .catch(e=>console.log('SW error:',e));
-  });
-}
 </script>
-</div><!-- /appContent -->
-
-<script>
-/* ══ PIN MAESTRO ══ */
-const PIN_MAESTRO='191256';
-let pinActual='';
-
-function abrirMaestro(){
-  document.getElementById('loginScreen').style.display='none';
-  const m=document.getElementById('maestroScreen');
-  m.style.display='flex';
-  pinActual='';actualizarDots();
-}
-function cerrarMaestro(){
-  document.getElementById('maestroScreen').style.display='none';
-  document.getElementById('loginScreen').style.display='flex';
-  pinActual='';actualizarDots();
-  document.getElementById('pinError').style.display='none';
-}
-function pinPress(n){
-  if(pinActual.length>=6)return;
-  pinActual+=n;actualizarDots();
-  if(pinActual.length===6) setTimeout(pinOk,300);
-}
-function pinDel(){pinActual=pinActual.slice(0,-1);actualizarDots();}
-function pinOk(){
-  if(pinActual===PIN_MAESTRO){
-    window.location.href='master.html';
-  } else {
-    document.getElementById('pinError').style.display='block';
-    document.querySelectorAll('.pdot').forEach(d=>{d.style.background='#a32d2d';d.style.borderColor='#a32d2d';});
-    setTimeout(()=>{pinActual='';actualizarDots();document.getElementById('pinError').style.display='none';},1200);
-  }
-}
-function actualizarDots(){
-  document.querySelectorAll('.pdot').forEach((d,i)=>{
-    d.classList.toggle('active',i<pinActual.length);
-  });
-}
-
-
-const CLAVES_PRO=[
-  'PINT-2026-PR','PINT-2026-P2','PINT-2026-P3',
-  'PINT-2026-P4','PINT-2026-P5','PINT-2026-P6',
-  'PINT-2026-P7','PINT-2026-P8','PINT-2026-P9',
-  'UNIT-2026-PR','JMPR-2026-01','JMPR-2026-02',
-  'DEMO-2026-PR'
-];
-
-function formatClave(input){
-  let v=input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4);
-  if(v.length>9) v=v.slice(0,9)+'-'+v.slice(9);
-  input.value=v.slice(0,12);
-  document.getElementById('claveError').style.display='none';
-  // Resaltar borde si tiene formato correcto
-  input.style.borderColor=v.length===12?'#e8650a':'#e8e4df';
-}
-
-function activarApp(){
-  const clave=document.getElementById('claveInput').value.trim().toUpperCase();
-  const err=document.getElementById('claveError');
-  const ok=document.getElementById('claveOk');
-  err.style.display='none';ok.style.display='none';
-
-  // Verificar clave guardada (persistencia)
-  const claveGuardada=localStorage.getItem('pintorapp_clave');
-  const claveValida=CLAVES_PRO.includes(clave)||(claveGuardada&&CLAVES_PRO.includes(claveGuardada));
-
-  if(CLAVES_PRO.includes(clave)||clave===claveGuardada){
-    ok.style.display='block';
-    localStorage.setItem('pintorapp_clave',clave||claveGuardada);
-    localStorage.setItem('pintorapp_activada','si');
-    setTimeout(()=>{
-      document.getElementById('loginScreen').style.display='none';
-      document.getElementById('appContent').style.display='block';
-    },900);
-  } else {
-    err.style.display='block';
-    document.getElementById('claveInput').style.borderColor='#a32d2d';
-    setTimeout(()=>document.getElementById('claveInput').style.borderColor='#e8e4df',2000);
-  }
-}
-
-// Auto-login si ya tiene clave guardada
-(function(){
-  const c=localStorage.getItem('pintorapp_clave');
-  const a=localStorage.getItem('pintorapp_activada');
-  if(c&&a==='si'&&CLAVES_PRO.includes(c)){
-    document.getElementById('loginScreen').style.display='none';
-    document.getElementById('appContent').style.display='block';
-  }
-})();
-</script>
-
 </body>
 </html>
