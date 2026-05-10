@@ -291,6 +291,15 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
 </head>
 <body>
 <script>
+
+/* LIMPIAR SW VIEJOS */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.update());
+  });
+  caches.keys().then(keys=>keys.filter(k=>k!=='pintorapp-pro-v3').forEach(k=>caches.delete(k)));
+}
+
 /* ══ SERVICE WORKER ══ */
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
@@ -1479,4 +1488,3 @@ function actualizarColorHex(v){
 
 </body>
 </html>
-
