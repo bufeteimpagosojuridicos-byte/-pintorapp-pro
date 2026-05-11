@@ -794,24 +794,43 @@ function toggleMicGlobal(){
   };
   recGlobal.start();
 }
+
+/* ══ SPEECH RECOGNITION ══ */
+let recognition=null, micOn=false;
+function initSpeech(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){document.getElementById('ml').textContent='Usa Chrome en Android';return;}
-  recognition=new SR();recognition.lang='es-ES';recognition.interimResults=true;recognition.continuous=false;
+  if(!SR){
+    const ml=document.getElementById('ml');
+    if(ml)ml.textContent='Usa Chrome en Android';
+    return;
+  }
+  recognition=new SR();
+  recognition.lang='es-ES';
+  recognition.interimResults=true;
+  recognition.continuous=false;
   recognition.onresult=function(e){
     let fin='',int='';
     for(let i=e.resultIndex;i<e.results.length;i++){
       if(e.results[i].isFinal)fin+=e.results[i][0].transcript;
       else int+=e.results[i][0].transcript;
     }
-    const b=document.getElementById('tx');b.classList.remove('mt');b.textContent=fin||int;
+    const b=document.getElementById('tx');
+    if(b){b.classList.remove('mt');b.textContent=fin||int;}
     if(fin)procesarVoz(fin);
   };
   recognition.onend=function(){
-    micOn=false;document.getElementById('mb').classList.remove('on');
-    document.getElementById('mz').classList.remove('on');
-    document.getElementById('ml').textContent='Pulsa para hablar';
+    micOn=false;
+    const mb=document.getElementById('mb');
+    const mz=document.getElementById('mz');
+    const ml=document.getElementById('ml');
+    if(mb)mb.classList.remove('on');
+    if(mz)mz.classList.remove('on');
+    if(ml)ml.textContent='Pulsa para hablar';
   };
-  recognition.onerror=function(e){document.getElementById('ml').textContent='Error: '+e.error;};
+  recognition.onerror=function(e){
+    const ml=document.getElementById('ml');
+    if(ml)ml.textContent='Error: '+e.error;
+  };
 }
 function toggleMic(){
   if(!recognition){alert('Usa Chrome en Android para el micrófono.');return;}
