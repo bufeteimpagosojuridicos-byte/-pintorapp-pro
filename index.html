@@ -829,7 +829,7 @@ function addPartida(desc,ud,precio) {
   var id='p'+pCount;
   var d=document.createElement('div');
   d.className='pr'; d.id=id;
-  d.innerHTML='<input type="text" placeholder="Descripción" value="'+(desc||')+'">'
+  d.innerHTML='<input type="text" placeholder="Descripción" value="'+(desc||'')+'">'
     +'<input type="number" placeholder="Ud/m²" min="0" step="0.1" value="'+(ud||'')+'">'
     +'<input type="number" placeholder="€" min="0" step="0.5" value="'+(precio||'')+'">'
     +'<input type="number" readonly style="background:var(--s);color:var(--ink3);font-family:var(--fd);font-weight:700" placeholder="0">'
