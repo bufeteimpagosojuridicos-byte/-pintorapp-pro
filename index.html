@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#e8650a">
+<link rel="manifest" href="manifest.json">
+<title>PintorApp Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--o:#e8650a;--o2:#ff8534;--obg:#fff5ef;--ink:#1a1814;--ink2:#4a4740;--ink3:#8a8580;--s:#faf9f7;--c:#fff;--b:rgba(0,0,0,0.09);--g:#2d7a2d;--gbg:#f0f8f0;--fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--r:10px}
+html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:100vh}
+/* LOGIN */
+#login{min-height:100vh;background:#1a1814;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:#fff;border-radius:20px;padding:36px 28px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.login-logo{width:88px;height:88px;object-fit:cover;border-radius:16px;margin-bottom:14px}
+.login-title{font-family:var(--fd);font-size:24px;font-weight:800;color:#1a1814;margin-bottom:4px}
+.login-title span{color:#e8650a}
+.login-sub{font-size:13px;color:#8a8580;margin-bottom:24px}
+.login-input{width:100%;border:2px solid #e8e4df;border-radius:10px;padding:14px;font-size:20px;font-weight:800;font-family:var(--fd);text-align:center;letter-spacing:4px;color:#1a1814;outline:none;background:#faf9f7;margin-bottom:10px;transition:border-color .2s}
+.login-input:focus{border-color:#e8650a}
+.login-error{display:none;background:#fce8e8;color:#a32d2d;font-size:12px;font-weight:600;padding:8px 12px;border-radius:7px;margin-bottom:10px}
+.login-ok{display:none;background:#f0f8f0;color:#2d7a2d;font-size:12px;font-weight:600;padding:8px 12px;border-radius:7px;margin-bottom:10px}
+.login-btn{width:100%;background:#e8650a;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;font-family:var(--fd);cursor:pointer;transition:background .15s}
+.login-btn:hover{background:#ff8534}
+.login-footer{margin-top:18px;font-size:11px;color:#b4b2a9;line-height:1.7}
+.login-master{background:none;border:none;cursor:pointer;color:rgba(0,0,0,.1);font-size:11px;margin-top:12px;font-family:monospace;padding:4px 8px}
+/* PIN MAESTRO */
+#pin-screen{display:none;min-height:100vh;background:#0d1117;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.pin-logo{width:56px;height:56px;border-radius:12px;border:2px solid #e8650a;margin-bottom:12px;object-fit:cover}
+.pin-badge{font-family:var(--fd);font-size:11px;font-weight:700;color:#e8650a;letter-spacing:3px;margin-bottom:6px}
+.pin-sub{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:2px;margin-bottom:24px}
+.pin-h{font-family:var(--fd);font-size:18px;font-weight:800;color:#fff;margin-bottom:20px}
+.pin-dots{display:flex;gap:12px;margin-bottom:24px;justify-content:center}
+.pdot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:transparent;transition:all .15s}
+.pdot.on{background:#e8650a;border-color:#e8650a}
+.pdot.err{background:#a32d2d;border-color:#a32d2d}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,78px);gap:9px;justify-content:center}
+.pk{width:78px;height:70px;background:#161b22;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:24px;font-weight:700;font-family:var(--fd);cursor:pointer;transition:all .15s}
+.pk:hover{background:#21262d;border-color:#e8650a;color:#e8650a}
+.pk:active{transform:scale(.94);background:#e8650a;color:#fff}
+.pk-del{font-size:16px;color:rgba(255,255,255,.4)}
+.pk-ok{background:#e8650a;color:#fff;border-color:#e8650a}
+.pin-err-msg{display:none;margin-top:14px;font-size:12px;color:#e8650a;letter-spacing:1px}
+.pin-hint{margin-top:10px;font-size:11px;color:rgba(255,255,255,.25);letter-spacing:1px}
+.pin-back{margin-top:16px;background:none;border:none;color:rgba(255,255,255,.3);font-size:11px;cursor:pointer;font-family:var(--fb)}
+/* APP */
+#app{display:none}
+.topbar{background:var(--ink);height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:200}
+.brand{display:flex;align-items:center;gap:9px}
+.brand-img{height:36px;width:36px;object-fit:cover;border-radius:8px}
+.brand-txt{font-family:var(--fd);font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.brand-txt span{color:var(--o)}
+.pro-badge{background:var(--o);color:#fff;font-size:10px;font-weight:700;font-family:var(--fd);padding:3px 9px;border-radius:4px;letter-spacing:1px}
+.topuser{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.65);font-size:13px}
+.ava{width:30px;height:30px;border-radius:50%;background:var(--o);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;font-family:var(--fd)}
+/* NAV */
+.tnav{background:var(--c);border-bottom:1px solid var(--b);display:flex;position:sticky;top:54px;z-index:190;overflow-x:auto}
+.tnav::-webkit-scrollbar{display:none}
+.tnt{flex:1;min-width:80px;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;border:none;background:none;color:var(--ink3);font-size:13px;font-weight:500;font-family:var(--fb);padding:13px 8px;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all .15s}
+.tnt.active{color:var(--o);border-color:var(--o)}
+/* MAIN */
+.main{padding:14px;max-width:880px;margin:0 auto}
+.panel{display:none}.panel.active{display:flex;flex-direction:column;gap:12px}
+/* CARDS */
+.card{background:var(--c);border:1px solid var(--b);border-radius:var(--r);padding:15px 17px}
+.ctitle{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.stat{background:var(--c);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px}
+.slb{font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+.sv{font-family:var(--fd);font-size:22px;font-weight:800;color:var(--ink);line-height:1}
+.sv.ac{color:var(--o)}.sv.gn{color:var(--g)}
+.ss{font-size:11px;color:var(--ink3);margin-top:2px}
+/* PRESUP LIST */
+.plist{display:flex;flex-direction:column;gap:7px}
+.prow{background:var(--c);border:1px solid var(--b);border-radius:var(--r);padding:12px 15px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.prow:hover,.prow.sel{border-color:var(--o);background:var(--obg)}
+.pnum{font-family:var(--fd);font-size:11px;font-weight:700;color:var(--ink3);background:var(--s);border:1px solid var(--b);padding:3px 8px;border-radius:5px;white-space:nowrap}
+.pcli{font-size:14px;font-weight:500;color:var(--ink)}
+.pdesc{font-size:12px;color:var(--ink3);margin-top:2px}
+.pimp{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--ink);text-align:right}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-top:4px}
+.bp{background:#fff8e1;color:#8a6000}.ba{background:var(--gbg);color:var(--g)}.be{background:#e8f0fe;color:#1a5ca8}.br{background:#fce8e8;color:#a32d2d}
+/* DETALLE */
+.det{background:var(--c);border:1px solid var(--b);border-radius:var(--r);overflow:hidden}
+.det-hd{background:var(--ink);padding:15px 17px;display:flex;justify-content:space-between;align-items:center}
+.det-logo-box{width:38px;height:38px;border-radius:7px;background:var(--o);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:14px;font-weight:800;color:#fff}
+.det-emp{color:#fff;font-family:var(--fd);font-size:13px;font-weight:700}
+.det-sub{color:rgba(255,255,255,.4);font-size:11px;margin-top:2px}
+.det-nbadge{background:var(--o);color:#fff;font-family:var(--fd);font-size:18px;font-weight:800;padding:5px 12px;border-radius:6px}
+.det-body{padding:15px 17px}
+.det-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:13px}
+.df label{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px}
+.df p{font-size:13px;font-weight:500;color:var(--ink)}
+.ptable{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}
+.ptable th{background:var(--s);padding:7px 9px;text-align:left;font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;border-bottom:1px solid var(--b)}
+.ptable td{padding:8px 9px;border-bottom:1px solid var(--b);color:var(--ink)}
+.ptable tr:last-child td{border-bottom:none}
+.nr{text-align:right;font-family:var(--fd);font-weight:600}
+.subtotal{text-align:right;font-size:12px;color:var(--ink3);margin-bottom:7px}
+.totrow{background:var(--ink);border-radius:8px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.totlbl{color:rgba(255,255,255,.65);font-size:13px}
+.totval{font-family:var(--fd);font-size:22px;font-weight:800;color:#fff}
+.totval span{color:var(--o)}
+.actrow{display:flex;gap:7px;flex-wrap:wrap}
+/* BOTONES */
+.btn{border-radius:7px;padding:9px 14px;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:var(--fb);border:1px solid var(--b);background:var(--c);color:var(--ink);transition:all .15s}
+.btn:hover{border-color:var(--o);color:var(--o)}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+.btn.pri{background:var(--o);color:#fff;border-color:var(--o)}.btn.pri:hover{background:var(--o2)}
+.btn.suc{background:var(--g);color:#fff;border-color:var(--g)}
+.btn.new{background:var(--o);color:#fff;border:none}
+.brow{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+/* EMAIL */
+.embox{background:rgba(26,24,20,.5);border-radius:var(--r);padding:16px;margin-top:11px;display:none}
+.embox.open{display:block}
+.eminner{background:var(--c);border-radius:var(--r);overflow:hidden}
+.emhd{background:var(--o);padding:12px 15px;display:flex;align-items:center;gap:8px}
+.emhd span{font-family:var(--fd);font-size:14px;font-weight:700;color:#fff}
+.embody{padding:14px 15px;display:flex;flex-direction:column;gap:9px}
+.ef label{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:3px}
+.ef input,.ef textarea{width:100%;border:1px solid var(--b);border-radius:6px;padding:8px 10px;font-size:13px;font-family:var(--fb);background:var(--s);color:var(--ink)}
+.ef textarea{height:64px;resize:none}
+.eprev{background:var(--s);border:1px dashed rgba(0,0,0,.12);border-radius:7px;padding:10px 12px}
+.eprev-hd{display:flex;align-items:center;gap:8px;margin-bottom:7px;padding-bottom:7px;border-bottom:1px solid var(--b)}
+.eprev-logo{width:26px;height:26px;background:var(--o);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:10px;font-weight:800;color:#fff}
+.eprev-nm{font-size:12px;font-weight:600;color:var(--ink)}
+.eprev-sub{font-size:10px;color:var(--ink3)}
+.eprev-body{font-size:12px;color:var(--ink2);line-height:1.6}
+.eprev-body strong{color:var(--o)}
+.emacts{display:flex;gap:7px;justify-content:flex-end;margin-top:3px}
+.btn-cancel{background:none;border:1px solid var(--b);border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer;color:var(--ink2);font-family:var(--fb)}
+.btn-send{background:var(--o);color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--fb);display:flex;align-items:center;gap:5px}
+/* NUEVO */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fi{display:flex;flex-direction:column;gap:4px}
+.fi label{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px}
+.fi input,.fi select{border:1px solid var(--b);border-radius:6px;padding:8px 10px;font-size:13px;font-family:var(--fb);background:var(--s);color:var(--ink);width:100%}
+.fi.full{grid-column:1/-1}
+.mic-btn-sm{width:34px;height:34px;border-radius:6px;background:var(--obg);border:1px solid #fde8d8;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mic-btn-sm svg{width:15px;height:15px;stroke:var(--o);fill:none;stroke-width:2}
+.ph{display:grid;grid-template-columns:1fr 90px 70px 70px 28px;gap:6px;padding:0 2px;margin-bottom:4px}
+.ph span{font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;text-align:center}
+.ph span:first-child{text-align:left}
+.pr{display:grid;grid-template-columns:1fr 90px 70px 70px 30px;gap:6px;align-items:center;margin-bottom:6px}
+.pr input{border:1px solid var(--b);border-radius:6px;padding:7px 9px;font-size:13px;font-family:var(--fb);background:var(--s);color:var(--ink)}
+.pr input[type=number]{text-align:right;font-weight:700;font-family:var(--fd)}
+.prm{background:none;border:1px solid var(--b);border-radius:6px;height:34px;width:30px;cursor:pointer;color:var(--ink3);display:flex;align-items:center;justify-content:center}
+.prm svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+.btnadd{background:var(--s);border:1px dashed var(--b);border-radius:7px;padding:9px;font-size:13px;color:var(--ink3);cursor:pointer;font-family:var(--fb);display:flex;align-items:center;justify-content:center;gap:5px;width:100%}
+.btnadd svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.nuevo-total{background:var(--ink);border-radius:8px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin:10px 0}
+.nt-lbl{color:rgba(255,255,255,.6);font-size:13px}
+.nt-val{font-family:var(--fd);font-size:20px;font-weight:800;color:#fff}
+.nt-val span{color:var(--o)}
+/* CALCULADORA */
+.seg{display:flex;background:var(--s);border:1px solid var(--b);border-radius:7px;overflow:hidden;margin-bottom:11px}
+.segb{flex:1;padding:9px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink3);font-family:var(--fb);transition:all .15s}
+.segb.active{background:var(--o);color:#fff}
+.cmode{display:none}.cmode.active{display:block}
+.cg{background:var(--s);border-radius:7px;padding:11px 13px;margin-bottom:8px}
+.ir{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ir:last-child{margin-bottom:0}
+.ir label{font-size:13px;color:var(--ink2);flex:1}
+.inum{border:1px solid var(--b);border-radius:6px;padding:7px 9px;font-size:15px;font-weight:700;color:var(--ink);font-family:var(--fd);width:82px;text-align:right;background:var(--c)}
+.iunit{font-size:12px;color:var(--ink3);min-width:24px}
+.isel{border:1px solid var(--b);border-radius:6px;padding:7px 9px;font-size:13px;font-family:var(--fb);background:var(--c);color:var(--ink)}
+.habt-hdr{display:grid;grid-template-columns:1fr 64px 64px 64px 28px;gap:6px;padding:0 9px;margin-bottom:4px}
+.habt-hdr span{font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;text-align:center}
+.habt-hdr span:first-child{text-align:left}
+.hrow{display:flex;align-items:center;gap:5px;background:var(--c);border:1px solid var(--b);border-radius:7px;padding:7px 9px;margin-bottom:5px}
+.hrow input{border:1px solid var(--b);border-radius:5px;padding:6px 7px;font-size:13px;font-family:var(--fb);background:var(--s)}
+.hrow input[type=number]{width:64px;text-align:right;font-weight:700;font-family:var(--fd)}
+.hn{flex:1;min-width:70px}
+.hrm{background:none;border:none;cursor:pointer;color:var(--ink3);display:flex;padding:3px}
+.hrm svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+.btnadd-h{background:var(--s);border:1px dashed var(--b);border-radius:7px;padding:8px;font-size:13px;color:var(--ink3);cursor:pointer;font-family:var(--fb);display:flex;align-items:center;justify-content:center;gap:5px;width:100%;margin-bottom:10px}
+.btnadd-h svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.htable{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0 10px;display:none}
+.htable.show{display:table}
+.htable th{background:var(--s);padding:6px 8px;text-align:left;color:var(--ink3);font-weight:700;font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--b)}
+.htable td{padding:6px 8px;border-bottom:1px solid var(--b);color:var(--ink)}
+.htable tfoot td{font-weight:700;border-top:2px solid var(--b);border-bottom:none}
+.htable .ac{color:var(--o)}
+.rp{background:var(--ink);border-radius:var(--r);padding:15px 17px;margin-top:4px}
+.rg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:9px}
+.rb{background:rgba(255,255,255,.07);border-radius:7px;padding:9px 11px;text-align:center}
+.rbl{font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.rbv{font-family:var(--fd);font-size:19px;font-weight:800;color:#fff}
+.rbv span{color:var(--o)}
+.rtot{background:var(--o);border-radius:7px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.rtl{font-size:13px;font-weight:600;color:#fff}
+.rtv{font-family:var(--fd);font-size:21px;font-weight:800;color:#fff}
+.pint-lbl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.pb{background:rgba(255,255,255,.07);border-radius:7px;padding:9px 11px;text-align:center}
+.pbl{font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px}
+.pbv{font-family:var(--fd);font-size:17px;font-weight:700;color:#fff}
+.pform{font-size:11px;color:rgba(255,255,255,.3);margin-bottom:3px}
+.psug{font-size:11px;color:rgba(255,255,255,.2)}
+/* COLORES */
+.ctabs{display:flex;gap:6px;margin-bottom:9px}
+.ctab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--b);background:var(--c);color:var(--ink3);font-family:var(--fb);transition:all .15s}
+.ctab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.csbar{display:flex;gap:6px;margin-bottom:7px;align-items:center}
+.csbar input{flex:1;border:1px solid var(--b);border-radius:7px;padding:8px 10px;font-size:13px;font-family:var(--fb);background:var(--c)}
+.ccnt{font-size:11px;color:var(--ink3);margin-bottom:7px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:5px;max-height:320px;overflow-y:auto}
+.csw{border:2px solid transparent;border-radius:7px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.csw:hover,.csw.sel{border-color:var(--o)}
+.swc{height:42px;width:100%}
+.swi{padding:4px 5px;background:var(--c)}
+.swcode{font-size:10px;font-weight:700;color:var(--ink);font-family:var(--fd);display:block;line-height:1.2}
+.swname{font-size:9px;color:var(--ink3);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cdet{background:var(--ink);border-radius:var(--r);padding:13px 15px;display:none;margin-top:9px}
+.cdet.show{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.cdsw{width:62px;height:62px;border-radius:7px;flex-shrink:0;border:2px solid rgba(255,255,255,.15)}
+.cdi{flex:1;min-width:130px}
+.cdn{font-family:var(--fd);font-size:15px;font-weight:700;color:#fff;margin-bottom:4px}
+.cdc{font-size:12px;color:rgba(255,255,255,.55);line-height:1.8}
+.cdc strong{color:#fff}
+.cdacts{display:flex;gap:6px;flex-wrap:wrap}
+.btn-use{background:var(--o);color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fb)}
+.btn-cpy{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:var(--fb)}
+/* VOZ */
+.mzone{background:var(--obg);border:2px dashed #fde8d8;border-radius:var(--r);padding:16px;display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center}
+.mzone.on{border-color:var(--o);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{border-color:var(--o)}50%{border-color:var(--o2)}}
+.mbtn{width:62px;height:62px;border-radius:50%;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.mbtn.on{background:var(--o)}
+.mbtn svg{width:25px;height:25px;stroke:#fff;fill:none;stroke-width:2}
+.tx{background:var(--s);border:1px solid var(--b);border-radius:7px;padding:10px 12px;min-height:46px;font-size:14px;color:var(--ink);line-height:1.6;width:100%;font-style:italic}
+.tx.mt{color:var(--ink3)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--ink);color:#fff;font-size:11px;font-weight:500;padding:5px 11px;border-radius:20px;cursor:pointer;border:none;font-family:var(--fb)}
+.chip:hover{background:var(--o)}
+.vfg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px}
+.vf{background:var(--s);border-radius:6px;padding:8px 10px}
+.vfl{font-size:11px;color:var(--ink3);margin-bottom:2px}
+.vfv{font-size:14px;font-weight:600;color:var(--ink);font-family:var(--fd)}
+/* CLIENTES ADMIN */
+.cli-row{display:flex;align-items:center;gap:11px;padding:11px 15px;border-bottom:1px solid var(--b);cursor:pointer;transition:background .15s}
+.cli-row:hover{background:var(--s)}
+.cli-ava{width:36px;height:36px;border-radius:50%;background:var(--obg);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:12px;font-weight:800;color:var(--o)}
+.cli-nm{font-size:14px;font-weight:500;color:var(--ink)}
+.cli-sb{font-size:12px;color:var(--ink3)}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.acrd{background:var(--c);border:1px solid var(--b);border-radius:var(--r);padding:12px 15px}
+.acrd .al{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.acrd .av{font-family:var(--fd);font-size:21px;font-weight:800;color:var(--ink);line-height:1}
+.acrd .av.ac{color:var(--o)}.acrd .av.gn{color:var(--g)}
+.acrd .as{font-size:11px;color:var(--ink3);margin-top:3px}
+.pbar-wrap{margin-top:8px;height:6px;background:var(--s);border-radius:3px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:3px;background:var(--o);transition:width .4s}
+/* PERFIL */
+.probanner{background:var(--ink);border-radius:var(--r);padding:14px 17px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pbt strong{font-family:var(--fd);font-size:15px;font-weight:800;color:#fff;display:block;margin-bottom:3px}
+.pbt strong span{color:var(--o)}
+.pbt p{font-size:12px;color:rgba(255,255,255,.5)}
+.btn-key{background:var(--o);color:#fff;border:none;border-radius:7px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--fb);white-space:nowrap}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--g);display:inline-block;margin-right:4px;animation:blink 1.2s infinite}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-box">
+    <img src="icono-pintorapp.png" class="login-logo" alt="PintorApp Pro">
+    <div class="login-title">PintorApp <span>Pro</span></div>
+    <div class="login-sub">Introduce tu clave de activación anual</div>
+    <input id="claveInput" class="login-input" type="text" maxlength="12" placeholder="XXXX-XXXX-XX" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+    <div id="claveError" class="login-error">❌ Clave incorrecta. Inténtalo de nuevo.</div>
+    <div id="claveOk" class="login-ok">✅ Clave correcta. Entrando...</div>
+    <button class="login-btn" id="btnActivar">Activar app</button>
+    <div class="login-footer">Clave válida 12 meses · ¿Sin clave? Contacta con<br><strong style="color:#e8650a">JM Prestige AI Solutions</strong></div>
+    <button class="login-master" id="btnMaestro">···</button>
+  </div>
+</div>
+
+<!-- PIN MAESTRO -->
+<div id="pin-screen">
+  <img src="icono-pintorapp.png" class="pin-logo" alt="">
+  <div class="pin-badge">PINTORAPP PRO · MASTER</div>
+  <div class="pin-sub">ACCESO RESTRINGIDO</div>
+  <div class="pin-h">Introduce tu PIN de administrador</div>
+  <div class="pin-dots" id="pinDots">
+    <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
+    <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
+  </div>
+  <div class="pin-keypad">
+    <button class="pk" id="pk1">1</button><button class="pk" id="pk2">2</button><button class="pk" id="pk3">3</button>
+    <button class="pk" id="pk4">4</button><button class="pk" id="pk5">5</button><button class="pk" id="pk6">6</button>
+    <button class="pk" id="pk7">7</button><button class="pk" id="pk8">8</button><button class="pk" id="pk9">9</button>
+    <button class="pk pk-del" id="pkDel">⌫</button><button class="pk" id="pk0">0</button><button class="pk pk-ok" id="pkOk">OK</button>
+  </div>
+  <div class="pin-err-msg" id="pinErr">PIN INCORRECTO</div>
+  <div class="pin-hint">PIN MAESTRO — 6 DÍGITOS</div>
+  <button class="pin-back" id="pinBack">← Volver</button>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <img src="icono-pintorapp.png" class="brand-img" alt="">
+      <div class="brand-txt">Pintor<span>App</span></div>
+    </div>
+    <div class="pro-badge">PRO</div>
+    <div class="topuser"><span id="topNombre">Herreruela Pintura</span><div class="ava" id="topAva">HP</div></div>
+  </div>
+  <div class="tnav">
+    <button class="tnt active" id="tab-presup">📋 Presupuestos</button>
+    <button class="tnt" id="tab-nuevo">➕ Nuevo</button>
+    <button class="tnt" id="tab-clientes">👥 Clientes</button>
+    <button class="tnt" id="tab-perfil">⚙️ Perfil Pro</button>
+  </div>
+  <div class="main">
+
+    <!-- PRESUPUESTOS -->
+    <div class="panel active" id="panel-presup">
+      <div class="stats">
+        <div class="stat"><div class="slb">Este mes</div><div class="sv ac">8</div><div class="ss">presupuestos</div></div>
+        <div class="stat"><div class="slb">Aceptados</div><div class="sv gn">5</div><div class="ss">62% conversión</div></div>
+        <div class="stat"><div class="slb">Facturado</div><div class="sv">4.820€</div><div class="ss">mayo 2026</div></div>
+        <div class="stat"><div class="slb">Pendiente</div><div class="sv ac">2.340€</div><div class="ss">3 presupuestos</div></div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-family:var(--fd);font-size:15px;font-weight:700">Presupuestos recientes</div>
+          <button class="btn new" id="btnNuevoP" style="font-size:13px;padding:8px 14px">+ Nuevo</button>
+        </div>
+        <div class="plist">
+          <div class="prow sel" id="p008" data-num="P-2026-008" data-cli="Familia Martínez" data-desc="Salón + dormitorio principal" data-total="1.840" data-estado="enviado">
+            <div class="pnum">P-2026-008</div>
+            <div><div class="pcli">Familia Martínez</div><div class="pdesc">Salón + dormitorio principal · Lleida</div></div>
+            <div><div class="pimp">1.840 €</div><div class="badge be">✉ Enviado</div></div>
+          </div>
+          <div class="prow" id="p007" data-num="P-2026-007" data-cli="Bar Can Pepet" data-desc="Pintura exterior fachada" data-total="3.200" data-estado="aceptado">
+            <div class="pnum">P-2026-007</div>
+            <div><div class="pcli">Bar Can Pepet</div><div class="pdesc">Pintura exterior fachada · Lleida</div></div>
+            <div><div class="pimp">3.200 €</div><div class="badge ba">✓ Aceptado</div></div>
+          </div>
+          <div class="prow" id="p006" data-num="P-2026-006" data-cli="Comunitat Veïns Pau" data-desc="Escalera y portal" data-total="980" data-estado="pendiente">
+            <div class="pnum">P-2026-006</div>
+            <div><div class="pcli">Comunitat Veïns Pau</div><div class="pdesc">Escalera y portal · Lleida</div></div>
+            <div><div class="pimp">980 €</div><div class="badge bp">⏱ Pendiente</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="det" id="detPanel">
+        <div class="det-hd">
+          <div style="display:flex;align-items:center;gap:11px">
+            <div class="det-logo-box" id="detLogoBox">HP</div>
+            <div><div class="det-emp" id="detEmp">Herreruela Pintura i Decoració</div><div class="det-sub">NIF: 12345678A · Lleida</div></div>
+          </div>
+          <div class="det-nbadge" id="detNum">P-2026-008</div>
+        </div>
+        <div class="det-body">
+          <div class="det-grid">
+            <div class="df"><label>Cliente</label><p id="detCli">Familia Martínez</p></div>
+            <div class="df"><label>Descripción</label><p id="detDesc">Salón + dormitorio principal</p></div>
+            <div class="df"><label>Fecha</label><p>10 mayo 2026</p></div>
+            <div class="df"><label>Validez</label><p>30 días</p></div>
+          </div>
+          <table class="ptable">
+            <thead><tr><th style="width:45%">Descripción</th><th>Ud</th><th class="nr">Precio</th><th class="nr">Total</th></tr></thead>
+            <tbody>
+              <tr><td>Preparación y lijado de superficies</td><td>1</td><td class="nr">320 €</td><td class="nr">320 €</td></tr>
+              <tr><td>Pintura plástica blanca (2 manos)</td><td>45 m²</td><td class="nr">18 €</td><td class="nr">810 €</td></tr>
+              <tr><td>Color NCS S 2010-Y30R techo</td><td>20 m²</td><td class="nr">22 €</td><td class="nr">440 €</td></tr>
+              <tr><td>Desplazamiento y limpieza</td><td>1</td><td class="nr">120 €</td><td class="nr">120 €</td></tr>
+            </tbody>
+          </table>
+          <div class="subtotal">Subtotal: 1.690 € · IVA 21%: 354,90 €</div>
+          <div class="totrow"><span class="totlbl">Total presupuesto</span><span class="totval"><span id="detTotal">1.840</span> €</span></div>
+          <div class="actrow">
+            <button class="btn pri" id="btnEmail"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Enviar email</button>
+            <button class="btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF</button>
+            <button class="btn suc"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Aceptado</button>
+          </div>
+          <div class="embox" id="embox">
+            <div class="eminner">
+              <div class="emhd"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>Enviar presupuesto con tu logo</span></div>
+              <div class="embody">
+                <div class="ef"><label>Email cliente</label><input type="email" id="emDest" value="martinez@gmail.com"></div>
+                <div class="ef"><label>Asunto</label><input type="text" id="emAsunto" value="Presupuesto P-2026-008 · Herreruela Pintura"></div>
+                <div class="ef"><label>Mensaje</label><textarea id="emMsg">Estimada familia Martínez, adjunto el presupuesto solicitado. Quedo a su disposición.</textarea></div>
+                <div class="eprev">
+                  <div class="eprev-hd"><div class="eprev-logo" id="emLogo">HP</div><div><div class="eprev-nm" id="emNm">Herreruela Pintura i Decoració</div><div class="eprev-sub">herreruela@gmail.com · 973 000 000</div></div></div>
+                  <div class="eprev-body">Presupuesto <strong id="emNum">P-2026-008</strong> por <strong id="emTot">1.840 €</strong><br><span style="color:var(--ink3)">PDF adjunto · Válido 30 días</span></div>
+                </div>
+                <div class="emacts"><button class="btn-cancel" id="btnCancelEmail">Cancelar</button><button class="btn-send"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Enviar</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NUEVO -->
+    <div class="panel" id="panel-nuevo">
+      <div style="background:var(--ink);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <button id="micGlobal" style="width:46px;height:46px;border-radius:50%;background:var(--o);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+        </button>
+        <div style="flex:1"><div id="micGlobalLabel" style="font-family:var(--fd);font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">Pulsa y habla — dicta cualquier dato</div><div id="micGlobalTx" style="font-size:12px;color:rgba(255,255,255,.5);font-style:italic">Listo...</div></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Datos del cliente y obra</div>
+        <div class="fgrid">
+          <div class="fi"><label>Cliente</label><div style="display:flex;gap:5px"><input type="text" id="nCli" placeholder="Nombre o empresa" style="flex:1"><button class="mic-btn-sm" id="micCli"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div></div>
+          <div class="fi"><label>Email</label><input type="email" id="nEmail" placeholder="cliente@email.com"></div>
+          <div class="fi full"><label>Descripción</label><div style="display:flex;gap:5px"><input type="text" id="nDesc" placeholder="Ej: Pintura salón y dormitorios" style="flex:1"><button class="mic-btn-sm" id="micDesc"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div></div>
+          <div class="fi"><label>Dirección</label><div style="display:flex;gap:5px"><input type="text" id="nDir" placeholder="Calle, número, localidad" style="flex:1"><button class="mic-btn-sm" id="micDir"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div></div>
+          <div class="fi"><label>IVA</label><select id="nIva"><option value="21">IVA 21%</option><option value="10">IVA 10%</option><option value="7">IGIC 7%</option><option value="0">Sin IVA</option></select></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="ctitle" style="margin-bottom:0">Partidas</div>
+          <button class="btn pri" id="btnMicPartida" style="font-size:12px;padding:7px 12px"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>Dictar partida</button>
+        </div>
+        <div class="ph"><span>Descripción</span><span>Ud/m²</span><span>€/ud</span><span>Total</span><span></span></div>
+        <div id="partidaList"></div>
+        <button class="btnadd" id="btnAddPartida"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir partida</button>
+        <div class="nuevo-total"><span class="nt-lbl">Total</span><span class="nt-val"><span id="nTotal">0,00</span> €</span></div>
+        <div class="brow">
+          <button class="btn pri" id="btnGuardarNuevo"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>Guardar y PDF</button>
+          <button class="btn" id="btnCancelarNuevo">Cancelar</button>
+        </div>
+      </div>
+      <!-- CALCULADORA -->
+      <div class="card">
+        <div class="ctitle">📐 Calculadora m²</div>
+        <div class="seg">
+          <button class="segb active" id="segR">⚡ Rápido</button>
+          <button class="segb" id="segP">🏠 Preciso</button>
+        </div>
+        <div class="cmode active" id="m-r">
+          <div class="cg">
+            <div class="ir"><label>Superficie de suelo</label><input class="inum" type="number" id="mSuelo" value="110" min="1"><span class="iunit">m²</span></div>
+            <div class="ir"><label>¿Qué pintar?</label><select class="isel" id="tipoR"><option value="2.2">Solo paredes (×2,2)</option><option value="1.0">Solo techos (×1,0)</option><option value="2.85" selected>Paredes+techos (×2,85)</option><option value="3.1">Alta (×3,1)</option></select></div>
+          </div>
+          <div style="background:var(--obg);border-radius:7px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:12px;color:var(--ink3)">Estimación</div><div style="font-size:11px;color:var(--ink3);margin-top:1px" id="rFormula">—</div></div>
+            <div style="font-family:var(--fd);font-size:24px;font-weight:800;color:var(--o)" id="rRapido">—</div>
+          </div>
+        </div>
+        <div class="cmode" id="m-p">
+          <div style="font-size:12px;color:var(--ink3);margin-bottom:9px">Techo=L×A · Paredes=2×(L+A)×H</div>
+          <div class="habt-hdr"><span>Habitación</span><span>Largo</span><span>Ancho</span><span>Alt.</span><span></span></div>
+          <div id="habList"></div>
+          <button class="btnadd-h" id="btnAddHab"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir habitación</button>
+          <div class="cg">
+            <div class="ir"><label>¿Pintar techos?</label><select class="isel" id="pintT"><option value="si">Sí</option><option value="no">No</option></select></div>
+            <div class="ir"><label>Restar aberturas</label><input class="inum" type="number" id="huecos" value="0" min="0" step="0.5"><span class="iunit">m²</span></div>
+          </div>
+          <table class="htable" id="htable"><thead><tr><th>Habitación</th><th class="nr">Techo</th><th class="nr">Paredes</th><th class="nr">Total</th></tr></thead><tbody id="htbody"></tbody><tfoot id="htfoot"></tfoot></table>
+        </div>
+        <div class="rp">
+          <div style="font-family:var(--fd);font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Resultado</div>
+          <div class="rg"><div class="rb"><div class="rbl">Paredes</div><div class="rbv" id="rP">0<span> m²</span></div></div><div class="rb"><div class="rbl">Techos</div><div class="rbv" id="rT">0<span> m²</span></div></div><div class="rb"><div class="rbl">Huecos</div><div class="rbv" id="rH">0<span> m²</span></div></div></div>
+          <div class="rtot"><span class="rtl">Total a pintar</span><span class="rtv" id="rTot">0 m²</span></div>
+          <div class="pint-lbl">Pintura necesaria</div>
+          <div class="cg" style="background:rgba(255,255,255,.05);margin-bottom:8px">
+            <div class="ir"><label style="color:rgba(255,255,255,.7)">Rendimiento</label><input class="inum" type="number" id="rend" value="11" min="1" step="0.5" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;width:72px"><span class="iunit" style="color:rgba(255,255,255,.4)">m²/L</span></div>
+            <div class="ir" style="margin-bottom:0"><label style="color:rgba(255,255,255,.7)">Manos</label><select id="nManos" style="border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:7px 9px;font-size:13px;background:rgba(255,255,255,.1);color:#fff;font-family:var(--fb)"><option value="1">1 mano</option><option value="2" selected>2 manos</option><option value="3">3 manos</option></select></div>
+          </div>
+          <div class="pg"><div class="pb"><div class="pbl">Litros</div><div class="pbv" id="pL">0 L</div></div><div class="pb"><div class="pbl">Botes 15L</div><div class="pbv" id="pB15">0</div></div><div class="pb"><div class="pbl">Botes 4L</div><div class="pbv" id="pB4">0</div></div></div>
+          <div class="pform" id="pForm">—</div>
+          <div class="psug" id="pSug"></div>
+          <div class="brow"><button class="btn pri" id="btnUsarCalc" style="margin-top:0"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir al presupuesto</button></div>
+        </div>
+      </div>
+      <!-- COLORES -->
+      <div class="card">
+        <div class="ctitle">🎨 Cartas de color</div>
+        <div class="ctabs"><button class="ctab active" id="ctabNCS">NCS</button><button class="ctab" id="ctabRAL">RAL</button><button class="ctab" id="ctabRGB">RGB</button></div>
+        <div class="csbar"><input type="text" id="cs" placeholder="Buscar código o nombre..."><button class="btn" id="btnMicColor" style="padding:8px 10px"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div>
+        <div class="ccnt" id="colCnt"></div>
+        <div class="cgrid" id="cg"></div>
+        <div class="cdet" id="cdet">
+          <div class="cdsw" id="cdSw"></div>
+          <div class="cdi"><div class="cdn" id="cdN">—</div><div class="cdc" id="cdC1">—</div><div class="cdc" id="cdC2">—</div><div class="cdc" id="cdC3">—</div></div>
+          <div class="cdacts"><button class="btn-use" id="btnUseColor">Añadir al presupuesto</button><button class="btn-cpy" id="cpyBtn">Copiar código</button></div>
+        </div>
+      </div>
+      <!-- VOZ -->
+      <div class="card">
+        <div class="ctitle">🎤 Dictado por voz</div>
+        <div class="mzone" id="mz">
+          <button class="mbtn" id="mb"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></button>
+          <div id="ml" style="font-size:13px;font-weight:500;color:var(--ink2)">Pulsa para hablar</div>
+          <div style="font-size:12px;color:var(--ink3);max-width:280px;line-height:1.5">Di medidas, colores, observaciones...</div>
+        </div>
+        <div style="margin-top:9px"><div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Lo que dijiste:</div><div class="tx mt" id="tx">El texto aparecerá aquí...</div></div>
+        <div style="margin-top:9px"><div class="ctitle" style="font-size:13px;margin-bottom:8px">⚡ Frases de ejemplo</div>
+          <div class="chips">
+            <button class="chip" id="chip1">📐 Medidas salón</button>
+            <button class="chip" id="chip2">🎨 Color RAL 9001</button>
+            <button class="chip" id="chip3">🏗 Fachada exterior</button>
+            <button class="chip" id="chip4">🔧 Preparación</button>
+          </div>
+        </div>
+        <div class="card" id="vocRes" style="display:none;margin-top:10px;background:var(--s)">
+          <div class="ctitle" style="font-size:13px;margin-bottom:9px">✅ Datos detectados</div>
+          <div class="vfg" id="vf"></div>
+          <div class="brow"><button class="btn pri" id="btnAddVoz"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir como partida</button><button class="btn" id="btnClearVoz">Limpiar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="panel" id="panel-clientes">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:12px 15px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:13px;color:var(--ink3)">5 clientes</div>
+          <button class="btn new" style="font-size:12px;padding:7px 12px">+ Nuevo</button>
+        </div>
+        <div id="cliList"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">📊 Administración</div>
+        <div class="admin-grid">
+          <div class="acrd"><div class="al">Ingresos mayo</div><div class="av gn">4.820€</div><div class="as">+12% vs abril</div><div class="pbar-wrap"><div class="pbar-fill" style="width:62%;background:var(--g)"></div></div></div>
+          <div class="acrd"><div class="al">Pendiente cobro</div><div class="av ac">2.340€</div><div class="as">3 presupuestos</div><div class="pbar-wrap"><div class="pbar-fill" style="width:38%"></div></div></div>
+          <div class="acrd"><div class="al">Tasa conversión</div><div class="av">62%</div><div class="as">5 de 8 aceptados</div><div class="pbar-wrap"><div class="pbar-fill" style="width:62%;background:var(--ink)"></div></div></div>
+          <div class="acrd"><div class="al">Rechazados</div><div class="av" style="color:#a32d2d">1</div><div class="as">P-2026-004 · 4.800€</div><div class="pbar-wrap"><div class="pbar-fill" style="width:12%;background:#a32d2d"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="panel" id="panel-perfil">
+      <div class="probanner">
+        <div class="pbt"><strong>Versión <span>PRO</span> activa</strong><p>Email con logo · Sin patrocinadores · PDF con tu marca</p></div>
+        <button class="btn-key">🔑 Clave: ••••••••</button>
+      </div>
+      <div class="card">
+        <div class="ctitle">Tu perfil profesional</div>
+        <div class="fgrid">
+          <div class="fi"><label>Nombre empresa</label><input type="text" id="pNombre" value="Herreruela Pintura i Decoració"></div>
+          <div class="fi"><label>NIF</label><input type="text" id="pNif" value="12345678A"></div>
+          <div class="fi"><label>Email</label><input type="email" id="pEmail" value="herreruela@gmail.com"></div>
+          <div class="fi"><label>Teléfono</label><input type="tel" id="pTel" value="973 000 000"></div>
+          <div class="fi"><label>Ciudad</label><input type="text" id="pCiudad" value="Lleida"></div>
+          <div class="fi"><label>Color corporativo</label><div style="display:flex;align-items:center;gap:8px"><input type="color" id="pColor" value="#e8650a" style="width:40px;height:36px;border-radius:6px;border:1px solid var(--b);cursor:pointer;padding:2px"><input type="text" id="pColorHex" value="#e8650a" style="width:90px"></div></div>
+          <div class="fi"><label>IVA por defecto</label><select id="pIva"><option value="21" selected>21%</option><option value="10">10%</option><option value="7">7% IGIC</option><option value="0">Sin IVA</option></select></div>
+        </div>
+        <div class="brow"><button class="btn pri" id="btnGuardarPerfil"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>Guardar perfil</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATOS
+// ═══════════════════════════════════════════
+const CLAVES=['PINT-2026-PR','PINT-2026-P2','PINT-2026-P3','PINT-2026-P4','PINT-2026-P5',
+              'UNIT-2026-PR','JMPR-2026-01','JMPR-2026-02','DEMO-2026-PR','PINT-2026-P6',
+              'PINT-2026-P7','PINT-2026-P8','PINT-2026-P9','TEST-2026-OK'];
+const PIN='191256';
+const COLS={
+  NCS:[
+    {c:'S 0300-N',n:'Blanco puro',r:'#f8f8f8'},{c:'S 0500-N',n:'Blanco neutro',r:'#f5f5f5'},
+    {c:'S 0502-Y',n:'Blanco cálido',r:'#f5f4ee'},{c:'S 1000-N',n:'Blanco roto',r:'#ebe9e4'},
+    {c:'S 1002-Y',n:'Crema suave',r:'#edeadf'},{c:'S 1010-Y30R',n:'Crema dorada',r:'#e8d9b5'},
+    {c:'S 1515-Y20R',n:'Beige arena',r:'#d9c49a'},{c:'S 2010-Y30R',n:'Beige medio',r:'#c9ae81'},
+    {c:'S 1500-N',n:'Gris muy claro',r:'#e8e8e8'},{c:'S 2000-N',n:'Gris claro',r:'#d8d8d8'},
+    {c:'S 3000-N',n:'Gris medio',r:'#b8b8b8'},{c:'S 7000-N',n:'Gris oscuro',r:'#505050'},
+    {c:'S 1002-B',n:'Azul pálido',r:'#e8ecf0'},{c:'S 1515-B',n:'Azul claro',r:'#b0c8e0'},
+    {c:'S 2010-B',n:'Azul suave',r:'#a8c0d8'},{c:'S 1515-G10Y',n:'Verde pálido',r:'#c0d8b0'},
+    {c:'S 3020-G10Y',n:'Verde salvia',r:'#7a9c6e'},{c:'S 3060-G',n:'Verde intenso',r:'#2a7a2a'},
+    {c:'S 3010-Y10R',n:'Ocre suave',r:'#b8956a'},{c:'S 4010-Y50R',n:'Terracota',r:'#9a6a50'},
+    {c:'S 5010-Y50R',n:'Terracota media',r:'#885040'},{c:'S 6010-Y30R',n:'Marrón cálido',r:'#7a5a3a'},
+    {c:'S 4010-R90B',n:'Azul grisáceo',r:'#6a7a96'},{c:'S 8010-Y30R',n:'Marrón oscuro',r:'#4a3020'},
+  ],
+  RAL:[
+    {c:'RAL 9001',n:'Blanco crema',r:'#f4f0e0'},{c:'RAL 9010',n:'Blanco puro',r:'#f5f5f0'},
+    {c:'RAL 9016',n:'Blanco tráfico',r:'#f5f6f4'},{c:'RAL 9003',n:'Blanco señales',r:'#f2f3f4'},
+    {c:'RAL 1013',n:'Blanco perla',r:'#e8e0c8'},{c:'RAL 1014',n:'Marfil',r:'#dfd0a0'},
+    {c:'RAL 1015',n:'Marfil claro',r:'#e8d8b0'},{c:'RAL 1019',n:'Beige grisáceo',r:'#b8a888'},
+    {c:'RAL 7035',n:'Gris luminoso',r:'#d0d0c8'},{c:'RAL 7044',n:'Gris seda',r:'#c8c4b8'},
+    {c:'RAL 7016',n:'Gris antracita',r:'#383e42'},{c:'RAL 7021',n:'Gris negro',r:'#2c3032'},
+    {c:'RAL 6019',n:'Verde blanco',r:'#c8dbb8'},{c:'RAL 6021',n:'Verde pálido',r:'#8aaa78'},
+    {c:'RAL 5014',n:'Azul paloma',r:'#6080a0'},{c:'RAL 5012',n:'Azul luminoso',r:'#4898c8'},
+    {c:'RAL 3015',n:'Rosa claro',r:'#e8b8b8'},{c:'RAL 3022',n:'Salmón',r:'#d07060'},
+    {c:'RAL 8017',n:'Marrón chocolate',r:'#4a2818'},{c:'RAL 8024',n:'Marrón beige',r:'#7a5030'},
+    {c:'RAL 2003',n:'Naranja pastel',r:'#e86c28'},{c:'RAL 1003',n:'Amarillo señales',r:'#f9a800'},
+    {c:'RAL 9005',n:'Negro intenso',r:'#101010'},{c:'RAL 9006',n:'Blanco aluminio',r:'#a8a8a8'},
+  ],
+  RGB:[
+    {c:'#FFFFFF',n:'Blanco puro',r:'#FFFFFF'},{c:'#FFFDD0',n:'Crema',r:'#FFFDD0'},
+    {c:'#FAF0E6',n:'Lino',r:'#FAF0E6'},{c:'#F5F5DC',n:'Beige',r:'#F5F5DC'},
+    {c:'#F5DEB3',n:'Trigo',r:'#F5DEB3'},{c:'#D2B48C',n:'Tostado',r:'#D2B48C'},
+    {c:'#F0F0F0',n:'Gris muy claro',r:'#F0F0F0'},{c:'#D3D3D3',n:'Gris luz',r:'#D3D3D3'},
+    {c:'#A9A9A9',n:'Gris oscuro',r:'#A9A9A9'},{c:'#808080',n:'Gris',r:'#808080'},
+    {c:'#505050',n:'Gris carbón',r:'#505050'},{c:'#2F2F2F',n:'Casi negro',r:'#2F2F2F'},
+    {c:'#FFD700',n:'Dorado',r:'#FFD700'},{c:'#FFA500',n:'Naranja',r:'#FFA500'},
+    {c:'#FFC0CB',n:'Rosa',r:'#FFC0CB'},{c:'#F08080',n:'Coral claro',r:'#F08080'},
+    {c:'#CD5C5C',n:'Rojo indio',r:'#CD5C5C'},{c:'#90EE90',n:'Verde claro',r:'#90EE90'},
+    {c:'#228B22',n:'Verde bosque',r:'#228B22'},{c:'#87CEEB',n:'Azul cielo',r:'#87CEEB'},
+    {c:'#4169E1',n:'Azul real',r:'#4169E1'},{c:'#E6E6FA',n:'Lavanda',r:'#E6E6FA'},
+    {c:'#D2691E',n:'Chocolate',r:'#D2691E'},{c:'#000000',n:'Negro',r:'#000000'},
+  ]
+};
+const CLIENTES=[
+  {n:'Familia Martínez',p:3,e:'martinez@gmail.com'},
+  {n:'Bar Can Pepet',p:5,e:'canpepet@gmail.com'},
+  {n:'Comunitat Veïns Pau',p:2,e:'veins@gmail.com'},
+  {n:'Obra Nova SL',p:4,e:'obran@gmail.com'},
+  {n:'Hostal La Pista',p:1,e:'lapista@gmail.com'}
+];
+
+// ═══════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════
+let tabCol='NCS', colSel=null, totalM2=0, modeCalc='r';
+let recognition=null, micOn=false, micGlobalOn=false, recGlobal=null;
+let pinVal='';
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  // Verificar si ya tiene clave guardada
+  var savedKey = localStorage.getItem('pap_clave');
+  if(savedKey && CLAVES.includes(savedKey)) {
+    mostrarApp();
+  }
+
+  // LOGIN
+  document.getElementById('btnActivar').addEventListener('click', activarApp);
+  document.getElementById('claveInput').addEventListener('keydown', function(e){ if(e.key==='Enter') activarApp(); });
+  document.getElementById('claveInput').addEventListener('input', function() { formatClave(this); });
+  document.getElementById('btnMaestro').addEventListener('click', abrirMaestro);
+
+  // PIN
+  ['1','2','3','4','5','6','7','8','9','0'].forEach(function(n) {
+    document.getElementById('pk'+n).addEventListener('click', function(){ pinPress(n); });
+  });
+  document.getElementById('pkDel').addEventListener('click', pinDel);
+  document.getElementById('pkOk').addEventListener('click', pinOk);
+  document.getElementById('pinBack').addEventListener('click', cerrarMaestro);
+
+  // NAV
+  document.getElementById('tab-presup').addEventListener('click', function(){ showP('presup', this); });
+  document.getElementById('tab-nuevo').addEventListener('click', function(){ showP('nuevo', this); });
+  document.getElementById('tab-clientes').addEventListener('click', function(){ showP('clientes', this); });
+  document.getElementById('tab-perfil').addEventListener('click', function(){ showP('perfil', this); });
+
+  // PRESUPUESTOS - click en filas
+  document.querySelectorAll('.prow').forEach(function(row) {
+    row.addEventListener('click', function(){ selP(this); });
+  });
+  document.getElementById('btnEmail').addEventListener('click', function(){ document.getElementById('embox').classList.add('open'); });
+  document.getElementById('btnCancelEmail').addEventListener('click', function(){ document.getElementById('embox').classList.remove('open'); });
+  document.getElementById('btnNuevoP').addEventListener('click', function(){ showP('nuevo', document.getElementById('tab-nuevo')); });
+
+  // NUEVO PRESUPUESTO
+  document.getElementById('btnAddPartida').addEventListener('click', function(){ addPartida(); });
+  document.getElementById('btnGuardarNuevo').addEventListener('click', guardarNuevo);
+  document.getElementById('btnCancelarNuevo').addEventListener('click', function(){ showP('presup', document.getElementById('tab-presup')); });
+  document.getElementById('btnMicPartida').addEventListener('click', micPartida);
+  document.getElementById('micGlobal').addEventListener('click', toggleMicGlobal);
+  document.getElementById('micCli').addEventListener('click', function(){ micField('nCli'); });
+  document.getElementById('micDesc').addEventListener('click', function(){ micField('nDesc'); });
+  document.getElementById('micDir').addEventListener('click', function(){ micField('nDir'); });
+
+  // CALCULADORA
+  document.getElementById('segR').addEventListener('click', function(){ setMode('r',this); });
+  document.getElementById('segP').addEventListener('click', function(){ setMode('p',this); });
+  document.getElementById('mSuelo').addEventListener('input', cRapido);
+  document.getElementById('tipoR').addEventListener('change', cRapido);
+  document.getElementById('pintT').addEventListener('change', cPreciso);
+  document.getElementById('huecos').addEventListener('input', cPreciso);
+  document.getElementById('rend').addEventListener('input', calcPintura);
+  document.getElementById('nManos').addEventListener('change', calcPintura);
+  document.getElementById('btnAddHab').addEventListener('click', function(){ addHab(null); });
+  document.getElementById('btnUsarCalc').addEventListener('click', usarCalcEnPartida);
+
+  // COLORES
+  document.getElementById('ctabNCS').addEventListener('click', function(){ swCol('NCS',this); });
+  document.getElementById('ctabRAL').addEventListener('click', function(){ swCol('RAL',this); });
+  document.getElementById('ctabRGB').addEventListener('click', function(){ swCol('RGB',this); });
+  document.getElementById('cs').addEventListener('input', function(){ renderColores(this.value); });
+  document.getElementById('btnMicColor').addEventListener('click', micColor);
+  document.getElementById('btnUseColor').addEventListener('click', addColorPartida);
+  document.getElementById('cpyBtn').addEventListener('click', copyCode);
+
+  // VOZ
+  document.getElementById('mb').addEventListener('click', toggleMic);
+  document.getElementById('chip1').addEventListener('click', function(){ sim('Salón 6 metros por 4, altura 2,70, paredes y techo'); });
+  document.getElementById('chip2').addEventListener('click', function(){ sim('Color blanco roto RAL 9001, dos manos'); });
+  document.getElementById('chip3').addEventListener('click', function(){ sim('Fachada exterior 45 metros cuadrados pintura siloxánica'); });
+  document.getElementById('chip4').addEventListener('click', function(){ sim('Preparar superficie, lijar y limpiar antes de pintar'); });
+  document.getElementById('btnAddVoz').addEventListener('click', addVozPartida);
+  document.getElementById('btnClearVoz').addEventListener('click', clearVoz);
+
+  // PERFIL
+  document.getElementById('btnGuardarPerfil').addEventListener('click', guardarPerfil);
+  document.getElementById('pColor').addEventListener('input', function(){ actualizarColor(this.value); });
+
+  // INIT DATA
+  renderColores('');
+  renderClientes();
+  addHab({n:'Salón',l:6,a:4,h:2.6});
+  addHab({n:'Dormitorio 1',l:4,a:3.5,h:2.6});
+  addHab({n:'Cocina',l:3.5,a:2.8,h:2.6});
+  addPartida(); addPartida();
+  cRapido();
+  initSpeech();
+});
+
+// ═══════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════
+function formatClave(input) {
+  var v = input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  if(v.length>4) v = v.slice(0,4)+'-'+v.slice(4);
+  if(v.length>9) v = v.slice(0,9)+'-'+v.slice(9);
+  input.value = v.slice(0,12);
+  input.style.borderColor = v.length===12 ? '#e8650a' : '#e8e4df';
+  document.getElementById('claveError').style.display='none';
+}
+
+function activarApp() {
+  var clave = document.getElementById('claveInput').value.trim().toUpperCase();
+  var err = document.getElementById('claveError');
+  var ok = document.getElementById('claveOk');
+  err.style.display='none'; ok.style.display='none';
+  if(CLAVES.includes(clave)) {
+    ok.style.display='block';
+    localStorage.setItem('pap_clave', clave);
+    setTimeout(mostrarApp, 900);
+  } else {
+    err.style.display='block';
+    document.getElementById('claveInput').style.borderColor='#a32d2d';
+    setTimeout(function(){ document.getElementById('claveInput').style.borderColor='#e8e4df'; }, 2000);
+  }
+}
+
+function mostrarApp() {
+  document.getElementById('login').style.display='none';
+  document.getElementById('pin-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+}
+
+// ═══════════════════════════════════════════
+// PIN MAESTRO
+// ═══════════════════════════════════════════
+function abrirMaestro() {
+  document.getElementById('login').style.display='none';
+  var ps = document.getElementById('pin-screen');
+  ps.style.display='flex';
+  ps.style.flexDirection='column';
+  pinVal=''; updateDots();
+}
+function cerrarMaestro() {
+  document.getElementById('pin-screen').style.display='none';
+  document.getElementById('login').style.display='flex';
+  pinVal=''; updateDots();
+  document.getElementById('pinErr').style.display='none';
+}
+function pinPress(n) {
+  if(pinVal.length>=6) return;
+  pinVal+=n; updateDots();
+  if(pinVal.length===6) setTimeout(pinOk,300);
+}
+function pinDel() { pinVal=pinVal.slice(0,-1); updateDots(); }
+function pinOk() {
+  if(pinVal===PIN) {
+    window.location.href='master.html';
+  } else {
+    document.getElementById('pinErr').style.display='block';
+    document.querySelectorAll('.pdot').forEach(function(d){ d.classList.add('err'); });
+    setTimeout(function(){
+      pinVal=''; updateDots();
+      document.getElementById('pinErr').style.display='none';
+    },1200);
+  }
+}
+function updateDots() {
+  document.querySelectorAll('.pdot').forEach(function(d,i){
+    d.classList.toggle('on', i<pinVal.length);
+    d.classList.remove('err');
+  });
+}
+
+// ═══════════════════════════════════════════
+// NAVEGACIÓN
+// ═══════════════════════════════════════════
+function showP(id, el) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tnt').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('panel-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// PRESUPUESTOS
+// ═══════════════════════════════════════════
+function selP(row) {
+  document.querySelectorAll('.prow').forEach(function(r){ r.classList.remove('sel'); });
+  row.classList.add('sel');
+  var num=row.dataset.num, cli=row.dataset.cli, desc=row.dataset.desc, total=row.dataset.total;
+  document.getElementById('detNum').textContent=num;
+  document.getElementById('detCli').textContent=cli;
+  document.getElementById('detDesc').textContent=desc;
+  document.getElementById('detTotal').textContent=total;
+  document.getElementById('emNum').textContent=num;
+  document.getElementById('emTot').textContent=total+' €';
+  document.getElementById('embox').classList.remove('open');
+  document.getElementById('detPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ═══════════════════════════════════════════
+// NUEVO PRESUPUESTO
+// ═══════════════════════════════════════════
+var pCount=0;
+function addPartida(desc,ud,precio) {
+  pCount++;
+  var id='p'+pCount;
+  var d=document.createElement('div');
+  d.className='pr'; d.id=id;
+  d.innerHTML='<input type="text" placeholder="Descripción" value="'+(desc||')+'">'
+    +'<input type="number" placeholder="Ud/m²" min="0" step="0.1" value="'+(ud||'')+'">'
+    +'<input type="number" placeholder="€" min="0" step="0.5" value="'+(precio||'')+'">'
+    +'<input type="number" readonly style="background:var(--s);color:var(--ink3);font-family:var(--fd);font-weight:700" placeholder="0">'
+    +'<button class="prm" data-id="'+id+'"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>';
+  document.getElementById('partidaList').appendChild(d);
+  d.querySelectorAll('input').forEach(function(i){ i.addEventListener('input', calcTotal); });
+  d.querySelector('.prm').addEventListener('click', function(){ document.getElementById(id).remove(); calcTotal(); });
+  calcTotal();
+}
+function calcTotal() {
+  var t=0;
+  document.querySelectorAll('#partidaList .pr').forEach(function(row){
+    var ins=row.querySelectorAll('input');
+    var ud=parseFloat(ins[1].value)||0, pr=parseFloat(ins[2].value)||0;
+    var tot=ud*pr; ins[3].value=tot>0?tot.toFixed(2):''; t+=tot;
+  });
+  var iva=parseInt(document.getElementById('nIva').value)||21;
+  document.getElementById('nTotal').textContent=(t*(1+iva/100)).toFixed(2).replace('.',',');
+}
+function guardarNuevo() {
+  var cli=document.getElementById('nCli').value.trim();
+  if(!cli){alert('Introduce el nombre del cliente.');return;}
+  alert('Presupuesto guardado.\nCliente: '+cli);
+}
+
+// ═══════════════════════════════════════════
+// CALCULADORA
+// ═══════════════════════════════════════════
+function setMode(m,el) {
+  modeCalc=m;
+  document.querySelectorAll('.segb').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('m-r').classList.toggle('active',m==='r');
+  document.getElementById('m-p').classList.toggle('active',m==='p');
+  if(m==='r') cRapido(); else cPreciso();
+}
+function cRapido() {
+  var s=parseFloat(document.getElementById('mSuelo').value)||0;
+  var m=parseFloat(document.getElementById('tipoR').value)||2.85;
+  var res=s*m;
+  document.getElementById('rFormula').textContent=s+' × '+m.toFixed(2)+' = '+res.toFixed(1);
+  document.getElementById('rRapido').textContent=res.toFixed(1)+' m²';
+  totalM2=res; calcPintura();
+}
+function addHab(data) {
+  var id='h'+Date.now()+(Math.random()*1000|0);
+  var li=document.getElementById('habList');
+  var d=document.createElement('div'); d.className='hrow'; d.id=id;
+  var nv=data?data.n:'',lv=data?data.l:'',av=data?data.a:'',hv=data?data.h:2.6;
+  d.innerHTML='<input class="hn" type="text" placeholder="Nombre" value="'+nv+'">'
+    +'<input type="number" placeholder="m" min="0" step="0.1" value="'+lv+'" title="Largo">'
+    +'<input type="number" placeholder="m" min="0" step="0.1" value="'+av+'" title="Ancho">'
+    +'<input type="number" placeholder="m" min="0" step="0.1" value="'+hv+'" title="Altura">'
+    +'<button class="hrm"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>';
+  li.appendChild(d);
+  d.querySelectorAll('input[type=number]').forEach(function(i){ i.addEventListener('input', cPreciso); });
+  d.querySelector('.hrm').addEventListener('click', function(){ d.remove(); cPreciso(); });
+  cPreciso();
+}
+function cPreciso() {
+  var tP=0,tT=0,filas=[];
+  document.querySelectorAll('.hrow').forEach(function(row){
+    var ins=row.querySelectorAll('input[type=number]');
+    var L=parseFloat(ins[0].value)||0,A=parseFloat(ins[1].value)||0,H=parseFloat(ins[2].value)||0;
+    var nom=row.querySelector('.hn').value||'Hab.';
+    if(L>0&&A>0&&H>0){
+      var t=parseFloat((L*A).toFixed(2)),p=parseFloat((2*(L+A)*H).toFixed(2));
+      tT+=t; tP+=p; filas.push({n:nom,t:t,p:p,tot:t+p});
+    }
+  });
+  var hu=parseFloat(document.getElementById('huecos').value)||0;
+  var pT=document.getElementById('pintT').value==='si';
+  totalM2=Math.max(0,parseFloat(((pT?tT:0)+tP-hu).toFixed(2)));
+  var ht=document.getElementById('htable');
+  if(filas.length>0){
+    ht.classList.add('show');
+    document.getElementById('htbody').innerHTML=filas.map(function(f){
+      return '<tr><td>'+f.n+'</td><td class="nr" style="color:var(--ink3)">'+f.t+' m²</td><td class="nr" style="color:var(--ink3)">'+f.p+' m²</td><td class="nr">'+f.tot.toFixed(2)+' m²</td></tr>';
+    }).join('');
+    document.getElementById('htfoot').innerHTML='<tr><td><strong>TOTAL</strong></td><td class="nr"><strong>'+tT.toFixed(2)+' m²</strong></td><td class="nr"><strong>'+tP.toFixed(2)+' m²</strong></td><td class="nr ac"><strong>'+( tT+tP).toFixed(2)+' m²</strong></td></tr>';
+  } else ht.classList.remove('show');
+  document.getElementById('rP').innerHTML=tP.toFixed(1)+'<span> m²</span>';
+  document.getElementById('rT').innerHTML=tT.toFixed(1)+'<span> m²</span>';
+  document.getElementById('rH').innerHTML=hu.toFixed(1)+'<span> m²</span>';
+  document.getElementById('rTot').textContent=totalM2.toFixed(1)+' m²';
+  calcPintura();
+}
+function calcPintura() {
+  var m=totalM2,rend=parseFloat(document.getElementById('rend').value)||11;
+  var manos=parseInt(document.getElementById('nManos').value)||2;
+  var litros=parseFloat(((m*manos)/rend).toFixed(1));
+  var b15=Math.floor(litros/15),resto=litros-(b15*15),b4=Math.ceil(resto/4);
+  var comprado=(b15*15)+(b4*4);
+  document.getElementById('pL').textContent=litros+' L';
+  document.getElementById('pB15').textContent=b15+' uds';
+  document.getElementById('pB4').textContent=b4+' uds';
+  document.getElementById('pForm').textContent='('+m.toFixed(1)+' × '+manos+') / '+rend+' = '+litros+' L';
+  var sug='';
+  if(litros>0){
+    if(b15>0&&b4>0) sug='Mixto: '+b15+' bote'+(b15>1?'s':'')+' 15L + '+b4+' bote'+(b4>1?'s':'')+' 4L = '+comprado+'L · Sobrante: '+Math.max(0,comprado-litros).toFixed(1)+'L';
+    else if(b15>0) sug=b15+' bote'+(b15>1?'s':'')+' 15L exacto';
+    else sug=b4+' bote'+(b4>1?'s':'')+' 4L';
+  }
+  document.getElementById('pSug').textContent=sug;
+}
+function usarCalcEnPartida() {
+  var m=document.getElementById('rTot').textContent;
+  var b15=document.getElementById('pB15').textContent,b4=document.getElementById('pB4').textContent;
+  addPartida('Superficie a pintar: '+m,1,'');
+  addPartida('Material: '+b15+' botes 15L + '+b4+' botes 4L',1,'');
+  showP('nuevo',document.getElementById('tab-nuevo'));
+}
+
+// ═══════════════════════════════════════════
+// COLORES
+// ═══════════════════════════════════════════
+function renderColores(f) {
+  var lista=COLS[tabCol];
+  var ff=(f||'').toLowerCase();
+  var fl=ff?lista.filter(function(x){return x.c.toLowerCase().includes(ff)||x.n.toLowerCase().includes(ff);}):lista;
+  document.getElementById('colCnt').textContent=fl.length+' colores — carta '+tabCol;
+  document.getElementById('cg').innerHTML=fl.map(function(x){
+    return '<div class="csw" data-c="'+x.c+'" data-n="'+x.n+'" data-r="'+x.r+'"><div class="swc" style="background:'+x.r+'"></div><div class="swi"><span class="swcode">'+x.c+'</span><span class="swname">'+x.n+'</span></div></div>';
+  }).join('');
+  document.querySelectorAll('.csw').forEach(function(el){
+    el.addEventListener('click', function(){ selColor(this.dataset.c, this.dataset.n, this.dataset.r, this); });
+  });
+}
+function swCol(t,el) {
+  tabCol=t;
+  document.querySelectorAll('.ctab').forEach(function(x){ x.classList.remove('active'); }); el.classList.add('active');
+  document.getElementById('cs').value=''; renderColores('');
+  document.getElementById('cdet').classList.remove('show');
+}
+function selColor(cod,nom,rgb,el) {
+  document.querySelectorAll('.csw').forEach(function(s){ s.classList.remove('sel'); }); el.classList.add('sel');
+  colSel={cod:cod,nom:nom,rgb:rgb,carta:tabCol};
+  var det=document.getElementById('cdet'); det.classList.add('show');
+  document.getElementById('cdSw').style.background=rgb;
+  document.getElementById('cdN').textContent=nom;
+  var hx=rgb.replace('#','');
+  var rv=parseInt(hx.slice(0,2),16),gv=parseInt(hx.slice(2,4),16),bv=parseInt(hx.slice(4,6),16);
+  document.getElementById('cdC1').innerHTML='<strong>'+tabCol+':</strong> '+cod;
+  document.getElementById('cdC2').innerHTML='<strong>RGB:</strong> '+rv+', '+gv+', '+bv;
+  document.getElementById('cdC3').innerHTML='<strong>HEX:</strong> '+rgb.toUpperCase();
+}
+function addColorPartida() {
+  if(!colSel)return;
+  addPartida('Color '+colSel.carta+' '+colSel.cod+' — '+colSel.nom,'','');
+}
+function copyCode() {
+  if(!colSel)return;
+  navigator.clipboard.writeText(colSel.cod).then(function(){
+    var b=document.getElementById('cpyBtn'); b.textContent='¡Copiado!';
+    setTimeout(function(){ b.textContent='Copiar código'; },1500);
+  });
+}
+function micColor() {
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Usa Chrome para dictado.');return;}
+  var r=new SR(); r.lang='es-ES'; r.interimResults=false;
+  r.onresult=function(e){ document.getElementById('cs').value=e.results[0][0].transcript; renderColores(document.getElementById('cs').value); };
+  r.start();
+}
+
+// ═══════════════════════════════════════════
+// VOZ
+// ═══════════════════════════════════════════
+function initSpeech() {
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ var ml=document.getElementById('ml'); if(ml) ml.textContent='Usa Chrome en Android'; return; }
+  recognition=new SR();
+  recognition.lang='es-ES'; recognition.interimResults=true; recognition.continuous=false;
+  recognition.onresult=function(e){
+    var fin='',int='';
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) fin+=e.results[i][0].transcript;
+      else int+=e.results[i][0].transcript;
+    }
+    var b=document.getElementById('tx');
+    if(b){b.classList.remove('mt');b.textContent=fin||int;}
+    if(fin) procesarVoz(fin);
+  };
+  recognition.onend=function(){
+    micOn=false;
+    var mb=document.getElementById('mb'),mz=document.getElementById('mz'),ml=document.getElementById('ml');
+    if(mb) mb.classList.remove('on');
+    if(mz) mz.classList.remove('on');
+    if(ml) ml.textContent='Pulsa para hablar';
+  };
+  recognition.onerror=function(e){
+    var ml=document.getElementById('ml');
+    if(ml) ml.textContent='Error: '+e.error;
+  };
+}
+function toggleMic() {
+  if(!recognition){alert('Usa Chrome en Android.');return;}
+  if(micOn){recognition.stop();}
+  else{
+    recognition.start(); micOn=true;
+    document.getElementById('mb').classList.add('on');
+    document.getElementById('mz').classList.add('on');
+    document.getElementById('ml').innerHTML='<span class="dot"></span>Escuchando...';
+  }
+}
+function sim(t) {
+  var b=document.getElementById('tx'); b.classList.remove('mt'); b.textContent=t; procesarVoz(t);
+}
+function procesarVoz(txt) {
+  var t=txt.toLowerCase(), campos=[];
+  var dm=t.match(/(\d+[,.]?\d*)\s*m(?:etros?)?\s*(?:por|x|×)\s*(\d+[,.]?\d*)/);
+  if(dm) campos.push({l:'Dimensiones',v:dm[1].replace(',','.')+'m × '+dm[2].replace(',','.')+'m'});
+  var am=t.match(/altura\s+(\d+[,.]?\d*)/)||t.match(/(\d+[,.]?\d*)\s*de\s+alt/);
+  if(am) campos.push({l:'Altura',v:am[1].replace(',','.')+'m'});
+  var ncs=t.match(/ncs\s*s?\s*(\d{4}[-–]\w+\d*)/i);
+  if(ncs) campos.push({l:'Color NCS',v:'NCS S '+ncs[1].toUpperCase()});
+  var ral=t.match(/ral\s*(\d{4})/i);
+  if(ral) campos.push({l:'Color RAL',v:'RAL '+ral[1]});
+  var man=t.match(/(una|dos|tres|1|2|3)\s*mano/);
+  if(man) campos.push({l:'Manos',v:man[1]+' mano'+(man[1]==='una'||man[1]==='1'?'':'s')});
+  if(t.includes('fachada')) campos.push({l:'Tipo',v:'Fachada exterior'});
+  else if(t.includes('techo')) campos.push({l:'Tipo',v:'Techo'});
+  else if(t.includes('pared')||t.includes('sal')||t.includes('hab')) campos.push({l:'Tipo',v:'Paredes interiores'});
+  ['plástica','siloxánica','esmalte','barniz','imprimación'].forEach(function(p){
+    if(t.includes(p)) campos.push({l:'Pintura',v:p.charAt(0).toUpperCase()+p.slice(1)});
+  });
+  if(campos.length>0){
+    document.getElementById('vocRes').style.display='block';
+    document.getElementById('vf').innerHTML=campos.map(function(c){
+      return '<div class="vf"><div class="vfl">'+c.l+'</div><div class="vfv">'+c.v+'</div></div>';
+    }).join('');
+  }
+}
+function addVozPartida() {
+  var t=document.getElementById('tx').textContent;
+  if(!t||t.includes('aparecerá'))return;
+  addPartida(t.slice(0,80),'',''); clearVoz();
+}
+function clearVoz() {
+  var b=document.getElementById('tx'); b.textContent='El texto aparecerá aquí...'; b.classList.add('mt');
+  document.getElementById('vocRes').style.display='none';
+}
+function micField(fieldId) {
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Usa Chrome para el micrófono.');return;}
+  var r=new SR(); r.lang='es-ES'; r.interimResults=false;
+  r.onresult=function(e){ document.getElementById(fieldId).value=e.results[0][0].transcript; };
+  r.start();
+}
+function micPartida() {
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Usa Chrome para el micrófono.');return;}
+  var r=new SR(); r.lang='es-ES'; r.interimResults=false;
+  var btn=document.getElementById('btnMicPartida');
+  btn.textContent='🔴 Escuchando...';
+  r.onresult=function(e){
+    var t=e.results[0][0].transcript;
+    var tl=t.toLowerCase(), ud='', pr='';
+    var udM=tl.match(/(\d+[,.]?\d*)\s*(?:metros?|m²|m2|unidades?)/i);
+    if(udM) ud=udM[1].replace(',','.');
+    var prM=tl.match(/(?:a|precio|por)\s*(\d+[,.]?\d*)\s*(?:euros?|€)?/i);
+    if(prM) pr=prM[1].replace(',','.');
+    addPartida(t, ud||'1', pr);
+  };
+  r.onend=function(){ btn.innerHTML='<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>Dictar partida'; };
+  r.start();
+}
+function toggleMicGlobal() {
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Usa Chrome para el micrófono.');return;}
+  if(micGlobalOn){if(recGlobal)recGlobal.stop();return;}
+  recGlobal=new SR(); recGlobal.lang='es-ES'; recGlobal.interimResults=true; recGlobal.continuous=true;
+  var btn=document.getElementById('micGlobal'),lbl=document.getElementById('micGlobalLabel'),tx=document.getElementById('micGlobalTx');
+  recGlobal.onstart=function(){ micGlobalOn=true; btn.style.background='#c84800'; lbl.textContent='Escuchando...'; };
+  recGlobal.onresult=function(e){
+    var fin='',int='';
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) fin+=e.results[i][0].transcript;
+      else int+=e.results[i][0].transcript;
+    }
+    tx.textContent=fin||int;
+    if(fin){ if(!document.getElementById('nDesc').value) document.getElementById('nDesc').value=fin; procesarVoz(fin); }
+  };
+  recGlobal.onend=function(){ micGlobalOn=false; btn.style.background='var(--o)'; lbl.textContent='Pulsa y habla — dicta cualquier dato'; tx.textContent='Listo...'; };
+  recGlobal.start();
+}
+
+// ═══════════════════════════════════════════
+// CLIENTES
+// ═══════════════════════════════════════════
+function renderClientes() {
+  document.getElementById('cliList').innerHTML=CLIENTES.map(function(c){
+    var initials=c.n.split(' ').map(function(w){return w[0];}).join('').slice(0,2);
+    return '<div class="cli-row"><div class="cli-ava">'+initials+'</div><div><div class="cli-nm">'+c.n+'</div><div class="cli-sb">'+c.p+' presupuesto'+(c.p>1?'s':'')+' · '+c.e+'</div></div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// PERFIL
+// ═══════════════════════════════════════════
+function guardarPerfil() {
+  var nm=document.getElementById('pNombre').value;
+  document.getElementById('topNombre').textContent=nm.split(' ').slice(0,2).join(' ');
+  var initials=nm.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+  document.getElementById('topAva').textContent=initials;
+  document.getElementById('detLogoBox').textContent=initials;
+  document.getElementById('emLogo').textContent=initials;
+  document.getElementById('emNm').textContent=nm;
+  alert('Perfil guardado correctamente.');
+}
+function actualizarColor(v) {
+  document.getElementById('pColorHex').value=v;
+  document.documentElement.style.setProperty('--o',v);
+}
+</script>
+</body>
+</html>
