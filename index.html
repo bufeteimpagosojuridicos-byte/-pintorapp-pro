@@ -465,11 +465,23 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
           <button class="btn pri" id="btnMicPartida" style="font-size:12px;padding:7px 12px"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>Dictar partida</button>
         </div>
         <div class="ph"><span>Descripción</span><span>Ud/m²</span><span>€/ud</span><span>Total</span><span></span></div>
-        <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">
-          <select id="selectTarifaCat" style="flex:1;border:1px solid var(--b);border-radius:6px;padding:7px 9px;font-size:12px;font-family:var(--fb);background:var(--s);color:var(--ink3)">
-            <option value="">📋 Añadir desde tarifa de precios...</option>
-          </select>
-          <button class="btn" id="btnAddTarifa" style="white-space:nowrap;font-size:12px;padding:7px 11px">➕ Añadir</button>
+        <div style="background:var(--s);border:1px solid var(--b);border-radius:8px;padding:10px;margin-bottom:10px">
+          <div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">📋 Añadir desde tarifa</div>
+          <div style="display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap">
+            <button id="tabTarDet" onclick="swTarifa('det',this)" style="font-size:11px;padding:4px 10px;border-radius:5px;border:1px solid var(--o);background:var(--o);color:#fff;cursor:pointer;font-family:var(--fb);font-weight:600">Tarifa detallada</button>
+            <button id="tabTarMed" onclick="swTarifa('med',this)" style="font-size:11px;padding:4px 10px;border-radius:5px;border:1px solid var(--b);background:none;color:var(--ink3);cursor:pointer;font-family:var(--fb)">Precios medios</button>
+            <select id="selectNivel" style="font-size:11px;padding:4px 8px;border:1px solid var(--b);border-radius:5px;background:var(--c);color:var(--ink3);font-family:var(--fb);display:none">
+              <option value="1">Estándar</option>
+              <option value="0.85">Económico -15%</option>
+              <option value="1.2">Premium +20%</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="selectTarifaCat" style="flex:1;border:1px solid var(--b);border-radius:6px;padding:7px 9px;font-size:12px;font-family:var(--fb);background:var(--c);color:var(--ink3)">
+              <option value="">Seleccionar concepto...</option>
+            </select>
+            <button class="btn" id="btnAddTarifa" style="white-space:nowrap;font-size:12px;padding:7px 11px">➕ Añadir</button>
+          </div>
         </div>
         <div id="partidaList"></div>
         <button class="btnadd" id="btnAddPartida"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Añadir partida</button>
@@ -1437,6 +1449,32 @@ const TARIFAS=[
     {id:903,cat:"📦 Otros",n:"Mover mobiliario",p:"20 - 45 €/estancia"},
     {id:904,cat:"📦 Otros",n:"Pequeñas reparaciones",p:"12 - 25 €/ud"}
   ];
+const TARIFAS_MEDIA=[
+    {id:2000,cat:"🏠 Servicios por m²",n:"Pintura basica blanco",p:"6 €/m²",base:6,ud:"m²"},
+    {id:2001,cat:"🏠 Servicios por m²",n:"Pintura color",p:"8 €/m²",base:8,ud:"m²"},
+    {id:2002,cat:"🏠 Servicios por m²",n:"Paredes y techos",p:"10 €/m²",base:10,ud:"m²"},
+    {id:2003,cat:"🏠 Servicios por m²",n:"Pintura plastica lavable",p:"8 €/m²",base:8,ud:"m²"},
+    {id:2004,cat:"🏠 Servicios por m²",n:"Pintura antihumedad especial",p:"14 €/m²",base:14,ud:"m²"},
+    {id:2005,cat:"🏠 Servicios por m²",n:"Reparacion basica y pintura",p:"13 €/m²",base:13,ud:"m²"},
+    {id:2006,cat:"🏠 Servicios por m²",n:"Alisar y pintar",p:"29 €/m²",base:29,ud:"m²"},
+    {id:2007,cat:"🏠 Servicios por m²",n:"Quitar gotele alisar pintar",p:"36 €/m²",base:36,ud:"m²"},
+    {id:2008,cat:"🏠 Servicios por m²",n:"Fachada sencilla",p:"18 €/m²",base:18,ud:"m²"},
+    {id:2009,cat:"🏠 Servicios por m²",n:"Fachada con reparacion",p:"33 €/m²",base:33,ud:"m²"},
+    {id:2010,cat:"🏠 Servicios por m²",n:"Impermeabilizante fachada",p:"28 €/m²",base:28,ud:"m²"},
+    {id:2011,cat:"👷 Mano de obra",n:"Pintor (hora)",p:"25 €/h",base:25,ud:"h"},
+    {id:2012,cat:"👷 Mano de obra",n:"Pintor (día completo)",p:"190 €/día",base:190,ud:"día"},
+    {id:2013,cat:"👷 Mano de obra",n:"Oficial (hora)",p:"30 €/h",base:30,ud:"h"},
+    {id:2014,cat:"👷 Mano de obra",n:"Ayudante (hora)",p:"18 €/h",base:18,ud:"h"},
+    {id:2015,cat:"➕ Extras y complementos",n:"Tapar agujeros/grietas",p:"2.5 €/m²",base:2.5,ud:"m²"},
+    {id:2016,cat:"➕ Extras y complementos",n:"Reparación humedades (zona)",p:"90 €/ud",base:90,ud:"ud"},
+    {id:2017,cat:"➕ Extras y complementos",n:"Mover muebles y proteger",p:"120 €/estancia",base:120,ud:"estancia"},
+    {id:2018,cat:"➕ Extras y complementos",n:"Pintura alta gama (extra)",p:"2.5 €/m²",base:2.5,ud:"m²"},
+    {id:2019,cat:"➕ Extras y complementos",n:"Cambio fuerte de color (extra)",p:"2 €/m²",base:2,ud:"m²"},
+    {id:2020,cat:"➕ Extras y complementos",n:"Pintar puerta completa",p:"85 €/ud",base:85,ud:"ud"},
+    {id:2021,cat:"➕ Extras y complementos",n:"Pintar radiador",p:"50 €/ud",base:50,ud:"ud"},
+    {id:2022,cat:"➕ Extras y complementos",n:"Pintar rodapié",p:"5 €/ml",base:5,ud:"ml"},
+    {id:2023,cat:"➕ Extras y complementos",n:"Andamio/plataforma (extra)",p:"18 €/m²",base:18,ud:"m²"}
+  ];
 const CLIENTES=[
   {n:'Familia Martínez',p:3,e:'martinez@gmail.com'},
   {n:'Bar Can Pepet',p:5,e:'canpepet@gmail.com'},
@@ -2085,12 +2123,25 @@ function vaciarDatos() {
 // ═══════════════════════════════════════════
 // TARIFAS DE PRECIOS
 // ═══════════════════════════════════════════
+var _tarifaMode = 'det';
+function swTarifa(mode, btn) {
+  _tarifaMode = mode;
+  document.getElementById('tabTarDet').style.background = mode==='det'?'var(--o)':'none';
+  document.getElementById('tabTarDet').style.color = mode==='det'?'#fff':'var(--ink3)';
+  document.getElementById('tabTarDet').style.borderColor = mode==='det'?'var(--o)':'var(--b)';
+  document.getElementById('tabTarMed').style.background = mode==='med'?'var(--o)':'none';
+  document.getElementById('tabTarMed').style.color = mode==='med'?'#fff':'var(--ink3)';
+  document.getElementById('tabTarMed').style.borderColor = mode==='med'?'var(--o)':'var(--b)';
+  document.getElementById('selectNivel').style.display = mode==='med'?'':'none';
+  initSelectTarifas();
+}
 function initSelectTarifas() {
   var sel = document.getElementById('selectTarifaCat');
   if(!sel) return;
-  // Agrupar por categoría
+  sel.innerHTML = '<option value="">Seleccionar concepto...</option>';
+  var lista = _tarifaMode==='med' ? TARIFAS_MEDIA : TARIFAS;
   var cats = {};
-  TARIFAS.forEach(function(t){
+  lista.forEach(function(t){
     if(!cats[t.cat]) cats[t.cat] = [];
     cats[t.cat].push(t);
   });
@@ -2110,11 +2161,18 @@ function addTarifaPartida() {
   var sel = document.getElementById('selectTarifaCat');
   var id = parseInt(sel.value);
   if(!id) return;
-  var t = TARIFAS.find(function(x){ return x.id===id; });
+  var lista = _tarifaMode==='med' ? TARIFAS_MEDIA : TARIFAS;
+  var t = lista.find(function(x){ return x.id===id; });
   if(!t) return;
-  // Extraer precio mínimo del rango para prellenar
-  var pr = t.p.match(/([\d.]+)/);
-  addPartida(t.n, '', pr ? pr[1] : '');
+  var precio = '';
+  if(t.base) {
+    var nivel = parseFloat(document.getElementById('selectNivel').value||'1');
+    precio = (t.base * nivel).toFixed(2).replace('.00','');
+  } else {
+    var pr = t.p.match(/([\d.]+)/);
+    precio = pr ? pr[1] : '';
+  }
+  addPartida(t.n, t.ud||'', precio);
   sel.value = '';
 }
 
