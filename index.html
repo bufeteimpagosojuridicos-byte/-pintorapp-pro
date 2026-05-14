@@ -404,6 +404,7 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
     <button class="tnt active" id="tab-presup">📋 Presupuestos</button>
     <button class="tnt" id="tab-nuevo">➕ Nuevo</button>
     <button class="tnt" id="tab-clientes">👥 Clientes</button>
+    <button class="tnt" id="tab-tarifa-or">📋 Orientativa</button>
     <button class="tnt" id="tab-perfil">⚙️ Perfil Pro</button>
   </div>
   <div class="main">
@@ -512,7 +513,7 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
           <div class="ctitle" style="margin-bottom:0">Partidas</div>
           <button class="btn pri" id="btnMicPartida" style="font-size:12px;padding:7px 12px"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>Dictar partida</button>
         </div>
-        <div class="ph"><span>Descripción</span><span>Ud/m²</span><span>€/ud</span><span>Total</span><span></span></div>
+        <div class="ph"><span>Descripción</span><span>Cant.</span><span>€/ud</span><span>Total</span><span></span></div>
         <div style="background:var(--s);border:1px solid var(--b);border-radius:8px;padding:10px;margin-bottom:10px">
           <div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">📋 Añadir desde tarifa</div>
           <div style="display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap">
@@ -1107,9 +1108,9 @@ function addPartida(desc,ud,precio) {
   var d=document.createElement('div');
   d.className='pr'; d.id=id;
   d.innerHTML='<input type="text" placeholder="Descripción" value="'+(desc||'')+'">'
-    +'<input type="number" placeholder="Ud/m²" min="0" step="0.1" value="'+(ud||'')+'">'
-    +'<input type="number" placeholder="€" min="0" step="0.5" value="'+(precio||'')+'">'
-    +'<input type="number" readonly style="background:var(--s);color:var(--ink3);font-family:var(--fd);font-weight:700" placeholder="0">'
+    +'<input type="number" placeholder="Cant." min="0" step="0.1" title="Cantidad" value="'+(ud||'')+'">'
+    +'<input type="number" placeholder="€/ud" min="0" step="0.5" title="Precio unitario" value="'+(precio||'')+'">'
+    +'<input type="number" readonly style="background:var(--s);color:var(--ink3);font-family:var(--fd);font-weight:700" placeholder="Total" title="Total partida">'
     +'<button class="prm" data-id="'+id+'"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>';
   document.getElementById('partidaList').appendChild(d);
   d.querySelectorAll('input').forEach(function(i){ i.addEventListener('input', calcTotal); });
