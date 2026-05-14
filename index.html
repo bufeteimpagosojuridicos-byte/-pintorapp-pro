@@ -141,10 +141,19 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
 .fi.full{grid-column:1/-1}
 .mic-btn-sm{width:34px;height:34px;border-radius:6px;background:var(--obg);border:1px solid #fde8d8;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .mic-btn-sm svg{width:15px;height:15px;stroke:var(--o);fill:none;stroke-width:2}
-.ph{display:grid;grid-template-columns:1fr 90px 70px 70px 28px;gap:6px;padding:0 2px;margin-bottom:4px}
+.ph{display:none}
+.pr{background:var(--s);border:1px solid var(--b);border-radius:8px;padding:10px 10px 8px;margin-bottom:8px}
+.pr-desc{width:100%;border:1px solid var(--b);border-radius:6px;padding:8px 10px;font-size:13px;font-family:var(--fb);background:var(--c);margin-bottom:7px;box-sizing:border-box}
+.pr-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:end}
+.pr-field{display:flex;flex-direction:column;gap:3px}
+.pr-field label{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.3px}
+.pr-field input{border:1px solid var(--b);border-radius:6px;padding:7px 8px;font-size:13px;font-family:var(--fb);background:var(--c);width:100%;box-sizing:border-box;text-align:right}
+.pr-field input[readonly]{background:var(--ink);color:#fff;font-family:var(--fd);font-weight:800;border-color:var(--ink)}
+.prm{background:none;border:1px solid #ffd0d0;border-radius:6px;color:#c03030;cursor:pointer;padding:7px 8px;font-size:14px;align-self:end;line-height:1}
+.prm svg{width:14px;height:14px;stroke:#c03030;fill:none;stroke-width:2;display:block}
 .ph span{font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;text-align:center}
 .ph span:first-child{text-align:left}
-.pr{display:grid;grid-template-columns:1fr 90px 70px 70px 30px;gap:6px;align-items:center;margin-bottom:6px}
+
 .pr input{border:1px solid var(--b);border-radius:6px;padding:7px 9px;font-size:13px;font-family:var(--fb);background:var(--s);color:var(--ink)}
 .pr input[type=number]{text-align:right;font-weight:700;font-family:var(--fd)}
 .prm{background:none;border:1px solid var(--b);border-radius:6px;height:34px;width:30px;cursor:pointer;color:var(--ink3);display:flex;align-items:center;justify-content:center}
@@ -513,7 +522,7 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
           <div class="ctitle" style="margin-bottom:0">Partidas</div>
           <button class="btn pri" id="btnMicPartida" style="font-size:12px;padding:7px 12px"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>Dictar partida</button>
         </div>
-        <div class="ph"><span>Descripción</span><span>Cant.</span><span>€/ud</span><span>Total</span><span></span></div>
+        <div class="ph"></div>
         <div style="background:var(--s);border:1px solid var(--b);border-radius:8px;padding:10px;margin-bottom:10px">
           <div style="font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">📋 Añadir desde tarifa</div>
           <div style="display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap">
@@ -1107,13 +1116,10 @@ function addPartida(desc,ud,precio) {
   var id='p'+pCount;
   var d=document.createElement('div');
   d.className='pr'; d.id=id;
-  d.innerHTML='<input type="text" placeholder="Descripción" value="'+(desc||'')+'">'
-    +'<input type="number" placeholder="Cant." min="0" step="0.1" title="Cantidad" value="'+(ud||'')+'">'
-    +'<input type="number" placeholder="€/ud" min="0" step="0.5" title="Precio unitario" value="'+(precio||'')+'">'
-    +'<input type="number" readonly style="background:var(--s);color:var(--ink3);font-family:var(--fd);font-weight:700" placeholder="Total" title="Total partida">'
-    +'<button class="prm" data-id="'+id+'"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>';
+  d.innerHTML=''
+    +'<input class="pr-desc" type="text" placeholder="Descripción del trabajo..." value="'+(desc||'')+'">'    +'<div class="pr-row">'      +'<div class="pr-field"><label>Ud / m²</label><input type="number" placeholder="0" min="0" step="0.1" value="'+(ud||'')+'"></div>'      +'<div class="pr-field"><label>€ / ud</label><input type="number" placeholder="0.00" min="0" step="0.5" value="'+(precio||'')+'"></div>'      +'<div class="pr-field"><label>Total €</label><input type="number" readonly placeholder="—"></div>'      +'<button class="prm" data-id="'+id+'"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>'    +'</div>';
   document.getElementById('partidaList').appendChild(d);
-  d.querySelectorAll('input').forEach(function(i){ i.addEventListener('input', calcTotal); });
+  d.querySelectorAll('input:not([readonly])').forEach(function(i){ i.addEventListener('input', calcTotal); });
   d.querySelector('.prm').addEventListener('click', function(){ document.getElementById(id).remove(); calcTotal(); });
   calcTotal();
 }
@@ -1121,8 +1127,11 @@ function calcTotal() {
   var t=0;
   document.querySelectorAll('#partidaList .pr').forEach(function(row){
     var ins=row.querySelectorAll('input');
+    // ins[0]=desc, ins[1]=ud, ins[2]=precio, ins[3]=total(readonly)
     var ud=parseFloat(ins[1].value)||0, pr=parseFloat(ins[2].value)||0;
-    var tot=ud*pr; ins[3].value=tot>0?tot.toFixed(2):''; t+=tot;
+    var tot=parseFloat((ud*pr).toFixed(2));
+    ins[3].value=tot>0?tot.toFixed(2):'';
+    t+=tot;
   });
   var iva=parseInt(document.getElementById('nIva').value)||21;
   document.getElementById('nTotal').textContent=(t*(1+iva/100)).toFixed(2).replace('.',',');
