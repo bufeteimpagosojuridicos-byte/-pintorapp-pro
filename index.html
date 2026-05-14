@@ -289,6 +289,15 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
 .modal-btns{display:flex;gap:9px;justify-content:center}
 .mbtn-cancel{background:none;border:1.5px solid #e8e4df;border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer;font-family:var(--fb);color:#4a4740}
 .mbtn-confirm{background:#a32d2d;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fb)}
+
+@media print {
+  body * { visibility: hidden !important; }
+  #detPanel, #detPanel * { visibility: visible !important; }
+  #detPanel { position: fixed !important; top: 0; left: 0; width: 100%; background: #fff !important; color: #000 !important; padding: 20px !important; box-shadow: none !important; }
+  .actrow, .embox, #btnEmail, #btnPDF, .btn { display: none !important; }
+  .det-hd { background: #1a1814 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; }
+}
 </style>
 </head>
 <body>
@@ -419,7 +428,7 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
           <div class="totrow"><span class="totlbl">Total presupuesto</span><span class="totval"><span id="detTotal">1.840</span> €</span></div>
           <div class="actrow">
             <button class="btn pri" id="btnEmail"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Enviar email</button>
-            <button class="btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF</button>
+            <button class="btn" id="btnPDF"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF</button>
             <button class="btn suc"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Aceptado</button>
           </div>
           <div class="embox" id="embox">
@@ -433,7 +442,7 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
                   <div class="eprev-hd"><div class="eprev-logo" id="emLogo" style="overflow:hidden"><img id="emLogoImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover"><img id="emLogoImg" src="" alt="" style="width:100%;height:100%;object-fit:cover"><span id="emLogoText" style="display:none">ME</span></div><div><div class="eprev-nm" id="emNm">Mi empresa</div><div class="eprev-sub" id="emContact">tu@email.com · 600 000 000</div></div></div>
                   <div class="eprev-body">Presupuesto <strong id="emNum">P-2026-008</strong> por <strong id="emTot">1.840 €</strong><br><span style="color:var(--ink3)">PDF adjunto · Válido 30 días</span></div>
                 </div>
-                <div class="emacts"><button class="btn-cancel" id="btnCancelEmail">Cancelar</button><button class="btn-send"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Enviar</button></div>
+                <div class="emacts"><button class="btn-cancel" id="btnCancelEmail">Cancelar</button><button class="btn-send" id="btnSendEmail"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Enviar</button></div>
               </div>
             </div>
           </div>
@@ -797,6 +806,8 @@ document.addEventListener('DOMContentLoaded', function() {
     row.addEventListener('click', function(){ selP(this); });
   });
   document.getElementById('btnEmail').addEventListener('click', function(){ document.getElementById('embox').classList.add('open'); });
+  document.getElementById('btnPDF').addEventListener('click', generarPDF);
+  document.getElementById('btnSendEmail').addEventListener('click', enviarEmail);
   document.getElementById('btnCancelEmail').addEventListener('click', function(){ document.getElementById('embox').classList.remove('open'); });
   document.getElementById('btnNuevoP').addEventListener('click', function(){ showP('nuevo', document.getElementById('tab-nuevo')); });
 
@@ -1446,6 +1457,73 @@ function addTarifaPartida() {
   }
   addPartida(t.n, t.ud||'', precio);
   sel.value = '';
+}
+
+
+// ═══════════════════════════════════════════
+// PDF E EMAIL
+// ═══════════════════════════════════════════
+function generarPDF() {
+  // Mostrar el panel si está oculto
+  var det = document.getElementById('detPanel');
+  if(!det) return;
+  // Guardar título original
+  var prevTitle = document.title;
+  // Poner el número del presupuesto como título (nombre del PDF)
+  var num = document.getElementById('detNum');
+  document.title = 'Presupuesto-' + (num ? num.textContent : 'PintorApp');
+  // Imprimir → guardar como PDF
+  window.print();
+  // Restaurar título
+  setTimeout(function(){ document.title = prevTitle; }, 1000);
+}
+
+function enviarEmail() {
+  var dest    = document.getElementById('emDest').value.trim();
+  var asunto  = document.getElementById('emAsunto').value.trim();
+  var msg     = document.getElementById('emMsg').value.trim();
+  var perfil  = JSON.parse(localStorage.getItem('pap_perfil')||'{}');
+  var empresa = perfil.nombre || 'Mi empresa';
+  var tel     = perfil.tel ? '\nTeléfono: ' + perfil.tel : '';
+  var email   = perfil.email ? '\nEmail: ' + perfil.email : '';
+
+  if(!dest) { alert('Introduce el email del cliente.'); return; }
+
+  // Construir cuerpo del email
+  var num   = document.getElementById('detNum')  ? document.getElementById('detNum').textContent  : '';
+  var total = document.getElementById('detTotal') ? document.getElementById('detTotal').textContent : '';
+  var cuerpo = msg + '\n\n'
+    + '--- Resumen del presupuesto ---\n'
+    + 'Número: ' + num + '\n'
+    + 'Importe total: ' + total + ' €\n'
+    + '\n'
+    + '--- ' + empresa + tel + email + ' ---\n'
+    + '\nGenerado con PintorApp Pro';
+
+  var mailtoUrl = 'mailto:' + encodeURIComponent(dest)
+    + '?subject=' + encodeURIComponent(asunto)
+    + '&body=' + encodeURIComponent(cuerpo);
+
+  window.location.href = mailtoUrl;
+
+  // Cerrar el panel de email
+  document.getElementById('embox').classList.remove('open');
+  notif('📧 Abriendo tu app de correo...', 'ok');
+}
+
+function notif(msg, tipo) {
+  // Mini notificación si no hay sistema de notif ya implementado
+  var n = document.getElementById('notifBar');
+  if(!n) {
+    n = document.createElement('div');
+    n.id = 'notifBar';
+    n.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;transition:opacity .3s';
+    document.body.appendChild(n);
+  }
+  n.textContent = msg;
+  n.style.opacity = '1';
+  clearTimeout(n._t);
+  n._t = setTimeout(function(){ n.style.opacity='0'; }, 2500);
 }
 
 </script>
