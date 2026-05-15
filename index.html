@@ -1197,11 +1197,199 @@ function renderClientes(){
 
 // ── PDF Y EMAIL ──
 function generarPDF(){
-  var prevTitle=document.title;
-  var num=document.getElementById('detNum');
-  document.title='Presupuesto-'+(num?num.textContent:'PintorApp');
-  window.print();
-  setTimeout(function(){document.title=prevTitle;},1000);
+  // Cargar jsPDF dinámicamente si no está cargado
+  if(typeof window.jspdf === 'undefined'){
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload=function(){_buildPDF();};
+    document.head.appendChild(s);
+  } else {
+    _buildPDF();
+  }
+}
+
+function _buildPDF(){
+  var doc=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  var perfil=JSON.parse(localStorage.getItem('pap_perfil')||'{}');
+  var empresa=perfil.nombre||'Mi empresa';
+  var nif=perfil.nif||'';
+  var email=perfil.email||'';
+  var tel=perfil.tel||'';
+  var ciudad=perfil.ciudad||'';
+  var color=perfil.color||'#e8650a';
+
+  // Convertir color hex a RGB
+  function hexRGB(h){
+    var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+    return [r,g,b];
+  }
+  var rgb=hexRGB(color);
+
+  var num=document.getElementById('detNum').textContent;
+  var cli=document.getElementById('detCli').textContent;
+  var desc=document.getElementById('detDesc').textContent;
+  var total=document.getElementById('detTotal').textContent;
+  var pagoSel=document.getElementById('detPago').value;
+  var pagoCustom=document.getElementById('detPagoCustom').value.trim();
+  var pago=pagoCustom||pagoSel||'—';
+
+  var W=210, margin=14, y=0;
+
+  // ── CABECERA ──
+  doc.setFillColor(rgb[0],rgb[1],rgb[2]);
+  doc.rect(0,0,W,32,'F');
+
+  // Logo si existe
+  var logoData=perfil.logo||null;
+  var txtX=margin;
+  if(logoData){
+    try{doc.addImage(logoData,'PNG',margin,5,22,22);txtX=margin+26;}catch(e){}
+  }
+
+  // Nombre empresa
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(16);doc.setFont('helvetica','bold');
+  doc.text(empresa,txtX,14);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');
+  var subLines=[];
+  if(nif) subLines.push('NIF: '+nif);
+  if(ciudad) subLines.push(ciudad);
+  if(tel) subLines.push('Tel: '+tel);
+  if(email) subLines.push(email);
+  doc.text(subLines.join('   '),txtX,21);
+
+  // Número presupuesto (derecha)
+  doc.setFontSize(11);doc.setFont('helvetica','bold');
+  doc.text(num,W-margin,14,{align:'right'});
+  doc.setFontSize(8);doc.setFont('helvetica','normal');
+  var hoy=new Date();
+  var fechaStr=hoy.getDate()+'/'+(hoy.getMonth()+1)+'/'+hoy.getFullYear();
+  doc.text('Fecha: '+fechaStr,W-margin,20,{align:'right'});
+  doc.text('Válido: 30 días',W-margin,25,{align:'right'});
+
+  y=40;
+
+  // ── DATOS CLIENTE ──
+  doc.setFillColor(245,244,242);
+  doc.rect(margin,y,W-margin*2,22,'F');
+  doc.setTextColor(100,100,100);doc.setFontSize(7);doc.setFont('helvetica','bold');
+  doc.text('CLIENTE',margin+4,y+6);
+  doc.text('DESCRIPCIÓN',margin+80,y+6);
+  doc.setTextColor(30,30,30);doc.setFontSize(10);doc.setFont('helvetica','bold');
+  doc.text(cli,margin+4,y+14);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  doc.text(desc,margin+80,y+14,{maxWidth:95});
+  y+=30;
+
+  // ── TABLA PARTIDAS ──
+  // Cabecera tabla
+  doc.setFillColor(rgb[0],rgb[1],rgb[2]);
+  doc.rect(margin,y,W-margin*2,7,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');
+  doc.text('DESCRIPCIÓN',margin+2,y+4.5);
+  doc.text('UD',margin+100,y+4.5,{align:'right'});
+  doc.text('PRECIO',margin+130,y+4.5,{align:'right'});
+  doc.text('TOTAL',W-margin-2,y+4.5,{align:'right'});
+  y+=7;
+
+  // Partidas desde la tabla del detalle
+  var filas=document.querySelectorAll('.ptable tbody tr');
+  var subtotal=0;
+  var fillAlt=false;
+  filas.forEach(function(row){
+    var celdas=row.querySelectorAll('td');
+    if(celdas.length<4) return;
+    var fdesc=celdas[0].textContent.trim();
+    var fud=celdas[1].textContent.trim();
+    var fprecio=celdas[2].textContent.trim();
+    var ftotal=celdas[3].textContent.trim();
+    var val=parseFloat(ftotal.replace(/[^0-9.,]/g,'').replace(',','.'))||0;
+    subtotal+=val;
+
+    if(fillAlt){doc.setFillColor(250,249,247);doc.rect(margin,y,W-margin*2,7,'F');}
+    fillAlt=!fillAlt;
+
+    doc.setTextColor(30,30,30);doc.setFontSize(8);doc.setFont('helvetica','normal');
+    var descCorta=fdesc.length>55?fdesc.slice(0,52)+'...':fdesc;
+    doc.text(descCorta,margin+2,y+4.5);
+    doc.text(fud,margin+100,y+4.5,{align:'right'});
+    doc.text(fprecio,margin+130,y+4.5,{align:'right'});
+    doc.setFont('helvetica','bold');
+    doc.text(ftotal,W-margin-2,y+4.5,{align:'right'});
+    y+=7;
+  });
+
+  // Si no hay filas reales, poner nota
+  if(!filas.length){
+    doc.setTextColor(150,150,150);doc.setFontSize(8);
+    doc.text('(Sin partidas)',margin+2,y+4.5);
+    y+=7;
+  }
+
+  // Línea separadora
+  doc.setDrawColor(220,220,220);
+  doc.line(margin,y+2,W-margin,y+2);
+  y+=8;
+
+  // ── TOTALES ──
+  var ivaVal=21;
+  var ivaEl=document.getElementById('nIva');
+  if(ivaEl) ivaVal=parseInt(ivaEl.value)||21;
+  var ivaImporte=parseFloat((subtotal*ivaVal/100).toFixed(2));
+  var totalFinal=parseFloat((subtotal+ivaImporte).toFixed(2));
+
+  var totX=W-margin-65;
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(100,100,100);
+  doc.text('Subtotal:',totX,y);
+  doc.setTextColor(30,30,30);
+  doc.text(subtotal.toFixed(2)+' €',W-margin-2,y,{align:'right'});
+  y+=5;
+  doc.setTextColor(100,100,100);
+  doc.text('IVA '+ivaVal+'%:',totX,y);
+  doc.setTextColor(30,30,30);
+  doc.text(ivaImporte.toFixed(2)+' €',W-margin-2,y,{align:'right'});
+  y+=6;
+
+  // Caja total
+  doc.setFillColor(30,24,20);
+  doc.roundedRect(totX-4,y-4,W-margin-totX+6,10,2,2,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
+  doc.text('TOTAL:',totX,y+3);
+  doc.setTextColor(rgb[0]>200?220:255,rgb[1]>150?200:180,50);
+  doc.text(totalFinal.toFixed(2)+' €',W-margin-2,y+3,{align:'right'});
+  y+=16;
+
+  // ── FORMA DE PAGO ──
+  doc.setFillColor(245,244,242);
+  doc.rect(margin,y,W-margin*2,10,'F');
+  doc.setTextColor(100,100,100);doc.setFontSize(7);doc.setFont('helvetica','bold');
+  doc.text('FORMA DE PAGO',margin+4,y+4);
+  doc.setTextColor(30,30,30);doc.setFontSize(9);doc.setFont('helvetica','normal');
+  doc.text(pago,margin+4,y+8.5);
+  y+=18;
+
+  // ── OBSERVACIONES / PIE ──
+  doc.setDrawColor(rgb[0],rgb[1],rgb[2]);
+  doc.setLineWidth(0.5);
+  doc.line(margin,y,W-margin,y);
+  y+=5;
+  doc.setTextColor(130,130,130);doc.setFontSize(7);doc.setFont('helvetica','normal');
+  doc.text('Este presupuesto es válido durante 30 días desde su fecha de emisión.',margin,y);
+  y+=4;
+  doc.text('Los precios indicados no incluyen IVA salvo indicación expresa.',margin,y);
+  y+=4;
+  var contactPie=empresa;
+  if(tel) contactPie+=' · Tel: '+tel;
+  if(email) contactPie+=' · '+email;
+  doc.text(contactPie,margin,y);
+
+  // ── NÚMERO PÁGINA ──
+  doc.setFontSize(7);doc.setTextColor(180,180,180);
+  doc.text('Generado con PintorApp Pro',W/2,287,{align:'center'});
+
+  // ── DESCARGAR ──
+  doc.save('Presupuesto-'+num+'.pdf');
+  notif('📄 PDF generado — revisa tu carpeta de Descargas');
 }
 function enviarEmail(){
   var dest=document.getElementById('emDest').value.trim();
