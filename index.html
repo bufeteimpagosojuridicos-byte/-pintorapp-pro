@@ -457,6 +457,25 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
             <div class="df"><label>Descripción</label><p id="detDesc">Salón + dormitorio principal</p></div>
             <div class="df"><label>Fecha</label><p>10 mayo 2026</p></div>
             <div class="df"><label>Validez</label><p>30 días</p></div>
+            <div class="df" style="grid-column:1/-1">
+              <label>Forma de pago</label>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+                <select id="detPago" style="flex:1;min-width:160px;border:1px solid var(--b);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--fb);background:var(--s);color:var(--ink)">
+                  <option value="">— Seleccionar —</option>
+                  <option value="Efectivo">💵 Efectivo</option>
+                  <option value="Transferencia bancaria">🏦 Transferencia bancaria</option>
+                  <option value="Bizum">📱 Bizum</option>
+                  <option value="Tarjeta">💳 Tarjeta</option>
+                  <option value="50% inicio · 50% fin de obra">📅 50% inicio · 50% fin de obra</option>
+                  <option value="30% inicio · 70% fin de obra">📅 30% inicio · 70% fin de obra</option>
+                  <option value="Pago aplazado 30 días">🗓️ Pago aplazado 30 días</option>
+                  <option value="Pago aplazado 60 días">🗓️ Pago aplazado 60 días</option>
+                  <option value="Pago en 3 plazos">📆 Pago en 3 plazos</option>
+                </select>
+                <input type="text" id="detPagoCustom" placeholder="O escribe forma de pago..." style="flex:1;min-width:140px;border:1px solid var(--b);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--fb);background:var(--s)">
+              </div>
+              <div id="detPagoActual" style="display:none;margin-top:5px;font-size:12px;color:var(--g);font-weight:600"></div>
+            </div>
           </div>
           <table class="ptable">
             <thead><tr><th style="width:45%">Descripción</th><th>Ud</th><th class="nr">Precio</th><th class="nr">Total</th></tr></thead>
@@ -1426,7 +1445,12 @@ document.addEventListener('DOMContentLoaded',function(){
     var cli=document.getElementById('detCli').textContent;
     var p=JSON.parse(localStorage.getItem('pap_perfil')||'{}');
     var empresa=p.nombre||'JM Pintura';
-    var texto='Hola '+cli+', te envío el presupuesto *'+num+'* por *'+tot+' €*.\nVálido 30 días.\nSi te encaja, confírmame por aquí y lo reservo.\n\n— '+empresa+(p.tel?' · '+p.tel:'');
+    // Forma de pago
+    var pagoSel=document.getElementById('detPago').value;
+    var pagoCustom=document.getElementById('detPagoCustom').value.trim();
+    var pago=pagoCustom||pagoSel;
+    var pagotxt=pago?'\n💳 Forma de pago: '+pago:'';
+    var texto='Hola '+cli+' 👋\n\nTe envío el presupuesto *'+num+'* por un importe de *'+tot+' €*.\n✅ Válido durante 30 días.'+pagotxt+'\n\nSi te encaja, confírmame por aquí y lo dejamos reservado. A continuación te envío el presupuesto en PDF.\n\n— '+empresa+(p.tel?' · '+p.tel:'');
     window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank');
   });
 
