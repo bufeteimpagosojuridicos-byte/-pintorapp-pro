@@ -318,6 +318,27 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
 </head>
 <body>
 
+<!-- MODAL ACEPTADO -->
+<div id="modalAceptado" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div class="modal-box">
+    <div class="modal-icon">✅</div>
+    <div class="modal-title">Marcar como Aceptado</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;text-align:left">
+      <div><label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:3px">Aceptado por</label><input id="acNombre" type="text" placeholder="Nombre del cliente" style="width:100%;border:1px solid var(--b);border-radius:7px;padding:9px 11px;font-size:13px;font-family:var(--fb);background:var(--s)"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:3px">Cómo confirmó</label>
+        <select id="acNota" style="width:100%;border:1px solid var(--b);border-radius:7px;padding:9px 11px;font-size:13px;font-family:var(--fb);background:var(--s)">
+          <option>Aceptado por WhatsApp</option><option>Aceptado por llamada</option><option>Aceptado en persona</option><option>Aceptado por email</option><option>Firmado en papel</option>
+        </select>
+      </div>
+      <div style="background:var(--gbg);border-radius:7px;padding:8px 11px;font-size:12px;color:var(--g)">📅 Fecha: <strong id="acFecha"></strong></div>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn-cancel" id="btnAcCancelar">Cancelar</button>
+      <button class="mbtn-confirm" id="btnAcConfirmar" style="background:var(--g)">✅ Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL VACIAR -->
 <div id="modalVaciar">
   <div class="modal-box">
@@ -448,9 +469,10 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
           <div class="subtotal">Subtotal: 1.690 € · IVA 21%: 354,90 €</div>
           <div class="totrow"><span class="totlbl">Total presupuesto</span><span class="totval"><span id="detTotal">1.840</span> €</span></div>
           <div class="actrow">
-            <button class="btn pri" id="btnEmail"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Enviar email</button>
+            <button class="btn pri" id="btnEmail"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email</button>
             <button class="btn" id="btnPDF"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF</button>
-            <button class="btn suc"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Aceptado</button>
+            <button class="btn" id="btnWA" style="background:#25D366;color:#fff;border-color:#25D366"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</button>
+            <button class="btn suc" id="btnAceptado"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Aceptado</button>
           </div>
           <div class="embox" id="embox">
             <div class="eminner">
@@ -479,6 +501,18 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
 
     <!-- NUEVO -->
     <div class="panel" id="panel-nuevo">
+      <!-- PLANTILLAS -->
+      <div style="background:var(--c);border:1px solid var(--b);border-radius:var(--r);padding:13px 15px">
+        <div style="font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:10px">⚡ Inicio rápido</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          <button class="btn" onclick="usarPlantilla('hab')" style="font-size:12px;padding:7px 11px">🏠 Habitación</button>
+          <button class="btn" onclick="usarPlantilla('fachada')" style="font-size:12px;padding:7px 11px">🏗️ Fachada</button>
+          <button class="btn" onclick="usarPlantilla('escalera')" style="font-size:12px;padding:7px 11px">🪜 Escalera</button>
+          <button class="btn" onclick="usarPlantilla('local')" style="font-size:12px;padding:7px 11px">🏪 Local</button>
+          <button class="btn" id="btnDuplicar" style="font-size:12px;padding:7px 11px">📋 Duplicar último</button>
+        </div>
+        <div style="font-size:11px;color:var(--ink3)">Elige una plantilla o duplica el último presupuesto y retoca los datos.</div>
+      </div>
       <div style="background:var(--ink);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px">
         <button id="micGlobal" style="width:46px;height:46px;border-radius:50%;background:var(--o);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
@@ -1383,7 +1417,123 @@ document.addEventListener('DOMContentLoaded',function(){
   initSpeech();
   cargarPerfil();
   initTarifaOr();
+
+  // ── WHATSAPP ──
+  document.getElementById('btnWA').addEventListener('click',function(){
+    var num=document.getElementById('detNum').textContent;
+    var tot=document.getElementById('detTotal').textContent;
+    var cli=document.getElementById('detCli').textContent;
+    var p=JSON.parse(localStorage.getItem('pap_perfil')||'{}');
+    var empresa=p.nombre||'JM Pintura';
+    var texto='Hola '+cli+', te envío el presupuesto *'+num+'* por *'+tot+' €*.\nVálido 30 días.\nSi te encaja, confírmame por aquí y lo reservo.\n\n— '+empresa+(p.tel?' · '+p.tel:'');
+    window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank');
+  });
+
+  // ── MARCAR ACEPTADO ──
+  document.getElementById('btnAceptado').addEventListener('click',function(){
+    var d=new Date();
+    var fecha=d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();
+    document.getElementById('acFecha').textContent=fecha;
+    var cli=document.getElementById('detCli').textContent;
+    document.getElementById('acNombre').value=cli||'';
+    var m=document.getElementById('modalAceptado');
+    m.style.display='flex';
+  });
+  document.getElementById('btnAcCancelar').addEventListener('click',function(){
+    document.getElementById('modalAceptado').style.display='none';
+  });
+  document.getElementById('modalAceptado').addEventListener('click',function(e){
+    if(e.target===this) this.style.display='none';
+  });
+  document.getElementById('btnAcConfirmar').addEventListener('click',function(){
+    var nombre=document.getElementById('acNombre').value||'Cliente';
+    var nota=document.getElementById('acNota').value;
+    var fecha=document.getElementById('acFecha').textContent;
+    // Actualizar badge en lista
+    var selRow=document.querySelector('.prow.sel');
+    if(selRow){
+      var badge=selRow.querySelector('.badge');
+      if(badge){badge.className='badge ba';badge.textContent='✓ Aceptado';}
+      selRow.dataset.estado='aceptado';
+    }
+    // Actualizar botón
+    var btnAc=document.getElementById('btnAceptado');
+    btnAc.style.background='var(--g)';btnAc.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><polyline points="20 6 9 17 4 12"/></svg>Aceptado ✓';
+    document.getElementById('modalAceptado').style.display='none';
+    notif('✅ Presupuesto aceptado por '+nombre+' · '+nota+' · '+fecha);
+  });
+
+  // ── DUPLICAR ──
+  document.getElementById('btnDuplicar').addEventListener('click',function(){
+    var selRow=document.querySelector('.prow.sel');
+    if(!selRow){notif('⚠️ Selecciona primero un presupuesto de la lista.');return;}
+    var cli=selRow.dataset.cli||'';
+    var desc=selRow.dataset.desc||'';
+    document.getElementById('nCli').value=cli;
+    document.getElementById('nDesc').value='(Copia) '+desc;
+    notif('📋 Datos duplicados — revisa y ajusta las partidas');
+  });
+
 });
+
+// ── PLANTILLAS ──
+var PLANTILLAS={
+  hab:{
+    nombre:'Habitación / Piso',
+    partidas:[
+      {d:'Preparación y lijado de superficies',u:'1',p:'180'},
+      {d:'Pintura plástica blanca paredes (2 manos)',u:'40',p:'7'},
+      {d:'Pintura techo (1 mano imprimación + 2 manos)',u:'15',p:'9'},
+      {d:'Masillado y reparaciones puntuales',u:'1',p:'120'},
+      {d:'Protección suelo y mobiliario',u:'1',p:'60'},
+      {d:'Limpieza y recogida de materiales',u:'1',p:'80'}
+    ]
+  },
+  fachada:{
+    nombre:'Fachada exterior',
+    partidas:[
+      {d:'Lavado fachada a presión',u:'80',p:'3.5'},
+      {d:'Reparación grietas y fisuras',u:'1',p:'200'},
+      {d:'Imprimación fijadora exterior',u:'80',p:'2.5'},
+      {d:'Pintura plástica exterior acrílica (2 manos)',u:'80',p:'14'},
+      {d:'Transporte y medios auxiliares',u:'1',p:'150'}
+    ]
+  },
+  escalera:{
+    nombre:'Escalera / Portal',
+    partidas:[
+      {d:'Preparación y lijado paramentos',u:'1',p:'150'},
+      {d:'Pintura temple liso blanco (2 manos)',u:'60',p:'4.5'},
+      {d:'Pintura esmalte pasamanos y zócalos',u:'1',p:'180'},
+      {d:'Reparación de manchas y humedades puntuales',u:'1',p:'100'},
+      {d:'Protección y limpieza',u:'1',p:'80'}
+    ]
+  },
+  local:{
+    nombre:'Local comercial',
+    partidas:[
+      {d:'Preparación superficies y masillado',u:'1',p:'200'},
+      {d:'Pintura plástica lavable paredes (2 manos)',u:'80',p:'8.5'},
+      {d:'Pintura techo lavable',u:'40',p:'9'},
+      {d:'Pintura esmalte metálicos y herrajes',u:'1',p:'150'},
+      {d:'Transporte y medios auxiliares',u:'1',p:'120'},
+      {d:'Limpieza final',u:'1',p:'80'}
+    ]
+  }
+};
+
+function usarPlantilla(tipo){
+  var pl=PLANTILLAS[tipo];if(!pl)return;
+  // Limpiar partidas actuales
+  document.getElementById('partidaList').innerHTML='';
+  pCount=0;
+  // Preguntar descripción si está vacía
+  if(!document.getElementById('nDesc').value) document.getElementById('nDesc').value=pl.nombre;
+  // Añadir partidas de plantilla
+  pl.partidas.forEach(function(p){addPartida(p.d,p.u,p.p);});
+  calcTotal();
+  notif('✅ Plantilla "'+pl.nombre+'" cargada — '+pl.partidas.length+' partidas');
+}
 </script>
 </body>
 </html>
