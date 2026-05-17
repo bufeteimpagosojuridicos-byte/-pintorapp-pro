@@ -1051,10 +1051,9 @@ function aplicarPerfilUI(p){
   var detSub=document.getElementById('detSub');if(detSub)detSub.textContent=(p.nif?'NIF: '+p.nif+' · ':''+(p.ciudad||''));
   var emNm=document.getElementById('emNm');if(emNm)emNm.textContent=nm;
   var emContact=document.getElementById('emContact');if(emContact)emContact.textContent=(p.email||'')+(p.tel?' · '+p.tel:'');
-  document.getElementById('logoIniciales').textContent=initials;
-  // topLogoText es oculto — la cabecera usa el icono fijo de PintorApp
-  document.getElementById('detLogoText').textContent=initials;
-  document.getElementById('emLogoText').textContent=initials;
+  var li=document.getElementById('logoIniciales'); if(li) li.textContent=initials;
+  var dlt=document.getElementById('detLogoText'); if(dlt) dlt.textContent=initials;
+  var elt=document.getElementById('emLogoText'); if(elt) elt.textContent=initials;
 }
 function aplicarLogo(dataUrl){
   // Logo del cliente: solo presupuesto y email (NO la cabecera de la app)
