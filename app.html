@@ -408,7 +408,7 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
   <div class="login-box">
     <div class="login-title">PintorApp <span>Pro</span></div>
     <div class="login-sub">Introduce tu clave de activación anual</div>
-    <input id="claveInput" class="login-input" type="text" maxlength="12" placeholder="XXXX-XXXX-XX" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+    <input id="claveInput" class="login-input" type="text" maxlength="14" placeholder="XXXX-XXXX-XX" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
     <div id="claveError" class="login-error">❌ Clave incorrecta. Inténtalo de nuevo.</div>
     <div id="claveOk" class="login-ok">✅ Clave correcta. Entrando...</div>
     <button class="login-btn" id="btnActivar">Activar app</button>
@@ -1085,8 +1085,8 @@ function actualizarColor(v){
 // ── LOGIN ──
 function formatClave(input){
   var v=input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4);
-  if(v.length>9) v=v.slice(0,9)+'-'+v.slice(9);
+  if(v.length>8) v=v.slice(0,4)+'-'+v.slice(4,8)+'-'+v.slice(8,10);
+  else if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4);
   input.value=v.slice(0,12);
   input.style.borderColor=v.length===12?'#e8650a':'#e8e4df';
   document.getElementById('claveError').style.display='none';
