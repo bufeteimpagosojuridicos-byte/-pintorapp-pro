@@ -584,6 +584,44 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
         </div>
         <div style="font-size:11px;color:var(--ink3)">Elige una plantilla o duplica el último presupuesto y retoca los datos.</div>
       </div>
+      <!-- TEXTOS PROFESIONALES -->
+      <div style="background:var(--c);border:1px solid var(--b);border-radius:var(--r);padding:13px 15px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-family:var(--fd);font-size:13px;font-weight:700">📝 Textos profesionales</div>
+          <button onclick="abrirNuevaPlantillaTxt()" style="background:var(--o);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">+ Nueva</button>
+        </div>
+        <div style="font-size:11px;color:var(--ink3);margin-bottom:8px">Inserta textos profesionales en tus presupuestos con un clic. Diferénciate de la competencia.</div>
+        <div id="listaTxtPro" style="display:flex;flex-direction:column;gap:5px"></div>
+      </div>
+
+      <!-- MODAL NUEVA PLANTILLA TEXTO -->
+      <div id="modalTxtPro" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;align-items:center;justify-content:center;padding:16px">
+        <div style="background:var(--c);border:1px solid var(--b);border-radius:14px;padding:20px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto">
+          <div style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--o);margin-bottom:12px">📝 Nueva plantilla de texto</div>
+          <div style="margin-bottom:8px"><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:3px">Nombre de la plantilla</label>
+          <input id="txtProNom" type="text" placeholder="Ej: Protocolo interior completo..." style="width:100%;padding:9px;background:var(--s);border:1.5px solid var(--b);border-radius:7px;color:var(--ink);font-size:13px;font-family:var(--fb)"></div>
+          <div style="margin-bottom:12px"><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:3px">Texto</label>
+          <textarea id="txtProBody" rows="7" placeholder="Escribe o pega el texto profesional..." style="width:100%;padding:9px;background:var(--s);border:1.5px solid var(--b);border-radius:7px;color:var(--ink);font-size:12px;font-family:var(--fb);resize:none;line-height:1.5"></textarea></div>
+          <div style="display:flex;gap:8px">
+            <button onclick="cerrarModalTxtPro()" style="flex:1;padding:10px;background:var(--s);border:1px solid var(--b);border-radius:8px;color:var(--ink3);font-size:13px;cursor:pointer">Cancelar</button>
+            <button onclick="guardarPlantillaTxt()" style="flex:2;padding:10px;background:var(--o);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Guardar plantilla</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL VER TEXTO COMPLETO -->
+      <div id="modalVerTxt" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;align-items:center;justify-content:center;padding:16px">
+        <div style="background:var(--c);border:1px solid var(--b);border-radius:14px;padding:20px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto">
+          <div id="verTxtNom" style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--o);margin-bottom:10px"></div>
+          <div id="verTxtBody" style="font-size:12px;color:var(--ink);line-height:1.6;white-space:pre-wrap;background:var(--s);padding:12px;border-radius:8px;margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px">
+            <button onclick="cerrarVerTxt()" style="flex:1;padding:10px;background:var(--s);border:1px solid var(--b);border-radius:8px;color:var(--ink3);font-size:13px;cursor:pointer">Cerrar</button>
+            <button id="btnInsertarTxt" style="flex:2;padding:10px;background:var(--o);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">✓ Insertar en presupuesto</button>
+            <button id="btnBorrarTxt" style="padding:10px 12px;background:rgba(255,68,68,.15);color:#f44;border:none;border-radius:8px;font-size:13px;cursor:pointer">🗑</button>
+          </div>
+        </div>
+      </div>
+
       <div style="background:var(--ink);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px">
         <button id="micGlobal" style="width:46px;height:46px;border-radius:50%;background:var(--o);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
@@ -830,9 +868,16 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
 const CLAVES=['PINT-2026-PR','PINT-2026-P2','PINT-2026-P3','PINT-2026-P4','PINT-2026-P5',
               'UNIT-2026-PR','JMPR-2026-01','JMPR-2026-02','DEMO-2026-PR','PINT-2026-P6',
               'PINT-2026-P7','PINT-2026-P8','PINT-2026-P9','TEST-2026-OK'];
-// Claves de prueba 15 días — formato TRIAL-XXXX
-const CLAVES_TRIAL=['TRIAL-2026','TRIAL-PINTOR','TRIAL-GRATIS','TRIAL-TEST01',
-                    'PRUEBA-2026','DEMO-15DIAS','FREE-PINTOR','GRATIS-2026'];
+// Claves de prueba 15 días — formato XXXX-XXXX-XX (12 chars)
+const CLAVES_TRIAL=[
+  'PRUE-BA26-15','FREE-DAYS-15','DEMO-TR1A-15',
+  'TEST-PINT-15','PRUB-2026-15','GRTS-PINT-15',
+  'PRBA-2026-01','PRBA-2026-02','PRBA-2026-03',
+  'PRBA-2026-04','PRBA-2026-05','PRBA-2026-06',
+  'PRBA-2026-07','PRBA-2026-08','PRBA-2026-09',
+  'PRBA-2026-10','PRBA-2026-11','PRBA-2026-12',
+  'PRBA-2026-13','PRBA-2026-14','PRBA-2026-15'
+];
 const PIN='191256';
 const DIAS_TRIAL=15;
 
@@ -856,6 +901,119 @@ const DATOS_MUESTRA={
   ],
   clientes:[{n:'Ejemplo: Familia López',p:1,e:'cliente@email.com'},{n:'Ejemplo: Bar El Rincón',p:1,e:'negocio@email.com'}]
 };
+
+// ── PLANTILLAS DE TEXTO PROFESIONAL ──
+var TXT_PRO_DEFAULT = [
+  {
+    id: 'txt_proteccion',
+    nom: 'Protección de estancias',
+    body: 'Trabajos a Realizar:\nDichos trabajos se realizarán con la máxima pulcritud y protección de estancias y enseres que se requieran antes de su pintado, como marcos y suelo.',
+    fija: true
+  },
+  {
+    id: 'txt_adjudicacion',
+    nom: 'Proceso de adjudicación',
+    body: 'Proceso de adjudicación por orden de aceptación:\nAdjudicación del trabajo: Una vez aceptado el presupuesto, la empresa adjudica el trabajo en el orden en que los clientes han aceptado los presupuestos. Esto significa que los proyectos se programan y ejecutan según el orden de aceptación, garantizando un proceso justo y organizado.',
+    fija: true
+  },
+  {
+    id: 'txt_protocolo',
+    nom: 'Protocolo interior 4 fases',
+    body: 'Trabajos a Realizar:\nSe procederá al tratamiento integral de paramentos horizontales y verticales (techos y paredes) en todas las dependencias de la vivienda, siguiendo este riguroso protocolo de actuación:\n\n1. Fase de Saneado: Revisión minuciosa de toda la superficie para detectar y eliminar desconchones o pintura antigua no adherida, garantizando una base sólida.\n\n2. Tratamiento de Patologías: Emplastecido mecánico y manual de grietas, fisuras y golpes para recuperar la planimetría original de las paredes.\n\n3. Puente de Unión: Aplicación de fijador sellador de alta penetración sobre superficies saneadas para consolidar el soporte y garantizar una adherencia máxima de la pintura.\n\n4. Acabado de Calidad: Aplicación de dos manos de pintura plástica de alta cubrición en todas las estancias, respetando los tiempos de secado entre capas según la elección de color del cliente.',
+    fija: true
+  },
+  {
+    id: 'txt_interior_fluido',
+    nom: 'Interior básico profesional',
+    body: 'Se realizarán trabajos previos de preparación en todas las dependencias de la vivienda, consistentes en el saneado de superficies, eliminando todas aquellas partes no adheridas o en mal estado. Posteriormente, se procederá al emplastecido de grietas, fisuras y golpes, dejando las superficies uniformes y listas para su acabado. A continuación, se aplicará un fijador para asegurar la correcta adherencia de la pintura tanto en paredes como en techos. Finalmente, se aplicarán dos manos de pintura plástica en todas las estancias, en el color y acabado elegido por el cliente.',
+    fija: true
+  }
+];
+
+var txtProActualId = null;
+
+function getTxtPro() {
+  var custom = [];
+  try { custom = JSON.parse(localStorage.getItem('txtPro') || '[]'); } catch(e){}
+  return TXT_PRO_DEFAULT.concat(custom);
+}
+
+function renderTxtPro() {
+  var lista = getTxtPro();
+  var el = document.getElementById('listaTxtPro');
+  if (!el) return;
+  if (!lista.length) { el.innerHTML = '<div style="font-size:11px;color:var(--ink3)">Sin plantillas. Pulsa + Nueva para añadir.</div>'; return; }
+  el.innerHTML = lista.map(function(t) {
+    var preview = t.body.substring(0, 60).replace(/\n/g, ' ') + (t.body.length > 60 ? '...' : '');
+    return '<div style="background:var(--s);border:1px solid var(--b);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="verTxtPro(\''+t.id+'\')">' +
+      '<div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px">'+t.nom+'</div>' +
+      '<div style="font-size:10px;color:var(--ink3)">'+preview+'</div></div>' +
+      '<div style="background:var(--o);color:#fff;border:none;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;white-space:nowrap">Ver</div>' +
+    '</div>';
+  }).join('');
+}
+
+function verTxtPro(id) {
+  var lista = getTxtPro();
+  var t = lista.find(function(x){ return x.id === id; });
+  if (!t) return;
+  txtProActualId = id;
+  document.getElementById('verTxtNom').textContent = t.nom;
+  document.getElementById('verTxtBody').textContent = t.body;
+  document.getElementById('btnBorrarTxt').style.display = t.fija ? 'none' : 'block';
+  document.getElementById('modalVerTxt').style.display = 'flex';
+  document.getElementById('btnInsertarTxt').onclick = function() {
+    var obs = document.getElementById('nObs');
+    if (obs) {
+      obs.value = obs.value ? obs.value + '\n\n' + t.body : t.body;
+    } else {
+      // Si no hay campo observaciones, insertar en descripción
+      var desc = document.getElementById('nDesc');
+      if (desc) desc.value = desc.value ? desc.value + ' — ' + t.nom : t.nom;
+    }
+    cerrarVerTxt();
+    toast('✓ Texto insertado en el presupuesto');
+  };
+  document.getElementById('btnBorrarTxt').onclick = function() {
+    if (!confirm('¿Borrar esta plantilla?')) return;
+    var custom = [];
+    try { custom = JSON.parse(localStorage.getItem('txtPro') || '[]'); } catch(e){}
+    custom = custom.filter(function(x){ return x.id !== id; });
+    localStorage.setItem('txtPro', JSON.stringify(custom));
+    cerrarVerTxt();
+    renderTxtPro();
+    toast('Plantilla borrada');
+  };
+}
+
+function cerrarVerTxt() {
+  document.getElementById('modalVerTxt').style.display = 'none';
+  txtProActualId = null;
+}
+
+function abrirNuevaPlantillaTxt() {
+  document.getElementById('txtProNom').value = '';
+  document.getElementById('txtProBody').value = '';
+  document.getElementById('modalTxtPro').style.display = 'flex';
+}
+
+function cerrarModalTxtPro() {
+  document.getElementById('modalTxtPro').style.display = 'none';
+}
+
+function guardarPlantillaTxt() {
+  var nom = document.getElementById('txtProNom').value.trim();
+  var body = document.getElementById('txtProBody').value.trim();
+  if (!nom) { toast('Escribe el nombre de la plantilla'); return; }
+  if (!body) { toast('Escribe el texto'); return; }
+  var custom = [];
+  try { custom = JSON.parse(localStorage.getItem('txtPro') || '[]'); } catch(e){}
+  custom.push({ id: 'txt_' + Date.now(), nom: nom, body: body, fija: false });
+  localStorage.setItem('txtPro', JSON.stringify(custom));
+  cerrarModalTxtPro();
+  renderTxtPro();
+  toast('✓ Plantilla guardada');
+}
 
 // ── ESTADO ──
 let tabCol='NCS', colSel=null, totalM2=0;
@@ -977,7 +1135,7 @@ function activarApp(){
     setTimeout(mostrarApp,900);
   } else if(esClaveTrial(clave)){
     ok.style.display='block';
-    ok.textContent='🆓 Clave de prueba activada. 15 días gratis. ¡Disfrútala!';
+    ok.textContent='🆓 ¡Prueba activada! Tienes 15 días gratis. ¡Disfrútala!';
     activarTrial(clave);
     setTimeout(mostrarApp,1200);
   } else {
@@ -1731,6 +1889,7 @@ document.addEventListener('DOMContentLoaded',function(){
   initSpeech();
   cargarPerfil();
   initTarifaOr();
+  renderTxtPro();
 
   // ── WHATSAPP ──
   document.getElementById('btnWA').addEventListener('click',function(){
