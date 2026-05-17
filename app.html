@@ -1632,6 +1632,21 @@ function _buildPDF(){
   doc.text('Fecha: '+fechaStr,W-margin,20,{align:'right'});
   doc.text('Válido: 30 días',W-margin,25,{align:'right'});
 
+  // ── SELLO "PRESUPUESTO" estilo tampón ──
+  var selloCx=margin+38, selloCy=16, selloW=52, selloH=14;
+  // Borde exterior doble (efecto tampón)
+  doc.setDrawColor(255,255,255);doc.setLineWidth(2.5);
+  doc.roundedRect(selloCx-1,selloCy-selloH/2-1,selloW+2,selloH+2,2,2,'S');
+  doc.setLineWidth(0.8);
+  doc.roundedRect(selloCx,selloCy-selloH/2,selloW,selloH,1.5,1.5,'S');
+  // Texto sello
+  doc.setTextColor(255,255,255);doc.setFontSize(11);doc.setFont('helvetica','bold');
+  doc.text('PRESUPUESTO',selloCx+selloW/2,selloCy+3,{align:'center'});
+  // Líneas decorativas arriba y abajo del texto
+  doc.setLineWidth(0.4);
+  doc.line(selloCx+3,selloCy-selloH/2+3,selloCx+selloW-3,selloCy-selloH/2+3);
+  doc.line(selloCx+3,selloCy+selloH/2-3,selloCx+selloW-3,selloCy+selloH/2-3);
+
   y=40;
 
   // ── DATOS CLIENTE ──
