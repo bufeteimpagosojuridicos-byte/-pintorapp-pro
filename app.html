@@ -2002,15 +2002,21 @@ var PLANTILLAS={
 
 function usarPlantilla(tipo){
   var pl=PLANTILLAS[tipo];if(!pl)return;
+  // Navegar a pestana Nuevo si no esta activa
+  showP('nuevo',document.getElementById('tab-nuevo'));
   // Limpiar partidas actuales
-  document.getElementById('partidaList').innerHTML='';
+  var lista=document.getElementById('partidaList');
+  if(lista){lista.innerHTML='';}
   pCount=0;
-  // Preguntar descripción si está vacía
-  if(!document.getElementById('nDesc').value) document.getElementById('nDesc').value=pl.nombre;
-  // Añadir partidas de plantilla
-  pl.partidas.forEach(function(p){addPartida(p.d,p.u,p.p);});
-  calcTotal();
-  notif('✅ Plantilla "'+pl.nombre+'" cargada — '+pl.partidas.length+' partidas');
+  // Poner descripcion
+  var descEl=document.getElementById('nDesc');
+  if(descEl&&!descEl.value) descEl.value=pl.nombre;
+  // Anadir partidas con delay para asegurar visibilidad DOM
+  setTimeout(function(){
+    pl.partidas.forEach(function(p){addPartida(p.d,p.u,p.p);});
+    calcTotal();
+    notif('✅ Plantilla "'+pl.nombre+'" cargada — '+pl.partidas.length+' partidas');
+  },50);
 }
 </script>
 </body>
