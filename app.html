@@ -1224,6 +1224,17 @@ function selP(row){
       }
     }catch(e){}
   }
+  // Si ya está aceptado, mostrar botón verde
+  var btnAcBtn=document.getElementById('btnAceptado');
+  if(btnAcBtn){
+    if(row.dataset.estado==='aceptado'){
+      btnAcBtn.style.background='var(--g)';btnAcBtn.style.borderColor='var(--g)';btnAcBtn.style.color='#fff';
+      btnAcBtn.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><polyline points="20 6 9 17 4 12"/></svg> Aceptado ✓';
+    } else {
+      btnAcBtn.style.background='';btnAcBtn.style.borderColor='';btnAcBtn.style.color='';
+      btnAcBtn.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><polyline points="20 6 9 17 4 12"/></svg>Aceptado';
+    }
+  }
   document.getElementById('detPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
@@ -2089,7 +2100,8 @@ document.addEventListener('DOMContentLoaded',function(){
     var waUrl=telCliente
       ? 'https://wa.me/'+telCliente+'?text='+encodeURIComponent(texto)
       : 'https://wa.me/?text='+encodeURIComponent(texto);
-    window.open(waUrl,'_blank');
+    // En móvil location.href funciona mejor que window.open para WhatsApp
+    window.location.href=waUrl;
   });
 
   // ── MARCAR ACEPTADO ──
@@ -2118,12 +2130,26 @@ document.addEventListener('DOMContentLoaded',function(){
       var badge=selRow.querySelector('.badge');
       if(badge){badge.className='badge ba';badge.textContent='✓ Aceptado';}
       selRow.dataset.estado='aceptado';
+      // Guardar estado en localStorage
+      try{
+        var numAc=selRow.dataset.num;
+        var presups=JSON.parse(localStorage.getItem('pap_presups')||'[]');
+        var idx=presups.findIndex(function(p){return p.num===numAc;});
+        if(idx>=0){
+          presups[idx].estado='aceptado';
+          presups[idx].aceptadoPor=nombre;
+          presups[idx].aceptadoFecha=fecha;
+          presups[idx].aceptadoNota=nota;
+          localStorage.setItem('pap_presups',JSON.stringify(presups));
+        }
+      }catch(e){}
     }
-    // Actualizar botón
+    // Actualizar botón a verde
     var btnAc=document.getElementById('btnAceptado');
-    btnAc.style.background='var(--g)';btnAc.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><polyline points="20 6 9 17 4 12"/></svg>Aceptado ✓';
+    btnAc.style.background='var(--g)';btnAc.style.borderColor='var(--g)';btnAc.style.color='#fff';
+    btnAc.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><polyline points="20 6 9 17 4 12"/></svg> Aceptado ✓';
     document.getElementById('modalAceptado').style.display='none';
-    notif('✅ Presupuesto aceptado por '+nombre+' · '+nota+' · '+fecha);
+    notif('✅ Presupuesto aceptado por '+nombre+' · '+fecha);
   });
 
   // ── DUPLICAR ──
