@@ -1650,16 +1650,9 @@ function _buildPDF(){
   doc.text('Fecha: '+fechaStr,W-margin,23,{align:'right'});
   doc.text('Válido: 30 días',W-margin,28,{align:'right'});
 
-  // ── SELLO "PRESUPUESTO" — encima del número, derecha ──
-  var selloW=44, selloH=8, selloX=W-margin-selloW, selloY=4;
-  // Borde doble estilo tampón en blanco
-  doc.setDrawColor(255,255,255);doc.setLineWidth(1.5);
-  doc.roundedRect(selloX-0.5,selloY-0.5,selloW+1,selloH+1,1,1,'S');
-  doc.setLineWidth(0.5);
-  doc.roundedRect(selloX,selloY,selloW,selloH,1,1,'S');
-  // Texto
-  doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');
-  doc.text('PRESUPUESTO',selloX+selloW/2,selloY+5.5,{align:'center',charSpace:1.2});
+  // ── PRESUPUESTO — texto limpio arriba derecha ──
+  doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont('helvetica','bold');
+  doc.text('PRESUPUESTO',W-margin,6,{align:'right',charSpace:1.5});
 
   y=40;
 
