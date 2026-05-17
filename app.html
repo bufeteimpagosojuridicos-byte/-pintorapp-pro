@@ -1650,9 +1650,9 @@ function _buildPDF(){
   doc.text('Fecha: '+fechaStr,W-margin,23,{align:'right'});
   doc.text('Válido: 30 días',W-margin,28,{align:'right'});
 
-  // ── PRESUPUESTO — texto limpio arriba derecha ──
-  doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont('helvetica','bold');
-  doc.text('PRESUPUESTO',W-margin,6,{align:'right',charSpace:1.5});
+  // ── PRESUPUESTO — texto centrado en la cabecera ──
+  doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont('helvetica','bold');
+  doc.text('P R E S U P U E S T O',W/2,12,{align:'center'});
 
   y=40;
 
