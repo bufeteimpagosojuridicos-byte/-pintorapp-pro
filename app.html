@@ -1628,29 +1628,25 @@ function _buildPDF(){
   if(email) subLines.push(email);
   doc.text(subLines.join('   '),txtX,21);
 
-  // Número presupuesto (derecha)
-  doc.setFontSize(11);doc.setFont('helvetica','bold');
-  doc.text(num,W-margin,14,{align:'right'});
+  // Número presupuesto (derecha) — debajo del sello
+  doc.setFontSize(10);doc.setFont('helvetica','bold');
+  doc.text(num,W-margin,18,{align:'right'});
   doc.setFontSize(8);doc.setFont('helvetica','normal');
   var hoy=new Date();
   var fechaStr=hoy.getDate()+'/'+(hoy.getMonth()+1)+'/'+hoy.getFullYear();
-  doc.text('Fecha: '+fechaStr,W-margin,20,{align:'right'});
-  doc.text('Válido: 30 días',W-margin,25,{align:'right'});
+  doc.text('Fecha: '+fechaStr,W-margin,23,{align:'right'});
+  doc.text('Válido: 30 días',W-margin,28,{align:'right'});
 
-  // ── SELLO "PRESUPUESTO" estilo tampón ──
-  var selloCx=margin+38, selloCy=16, selloW=52, selloH=14;
-  // Borde exterior doble (efecto tampón)
-  doc.setDrawColor(255,255,255);doc.setLineWidth(2.5);
-  doc.roundedRect(selloCx-1,selloCy-selloH/2-1,selloW+2,selloH+2,2,2,'S');
-  doc.setLineWidth(0.8);
-  doc.roundedRect(selloCx,selloCy-selloH/2,selloW,selloH,1.5,1.5,'S');
-  // Texto sello
-  doc.setTextColor(255,255,255);doc.setFontSize(11);doc.setFont('helvetica','bold');
-  doc.text('PRESUPUESTO',selloCx+selloW/2,selloCy+3,{align:'center'});
-  // Líneas decorativas arriba y abajo del texto
-  doc.setLineWidth(0.4);
-  doc.line(selloCx+3,selloCy-selloH/2+3,selloCx+selloW-3,selloCy-selloH/2+3);
-  doc.line(selloCx+3,selloCy+selloH/2-3,selloCx+selloW-3,selloCy+selloH/2-3);
+  // ── SELLO "PRESUPUESTO" — encima del número, derecha ──
+  var selloW=44, selloH=8, selloX=W-margin-selloW, selloY=4;
+  // Borde doble estilo tampón en blanco
+  doc.setDrawColor(255,255,255);doc.setLineWidth(1.5);
+  doc.roundedRect(selloX-0.5,selloY-0.5,selloW+1,selloH+1,1,1,'S');
+  doc.setLineWidth(0.5);
+  doc.roundedRect(selloX,selloY,selloW,selloH,1,1,'S');
+  // Texto
+  doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');
+  doc.text('PRESUPUESTO',selloX+selloW/2,selloY+5.5,{align:'center',charSpace:1.2});
 
   y=40;
 
