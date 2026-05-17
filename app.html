@@ -505,6 +505,7 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
         <div class="det-body">
           <div class="det-grid">
             <div class="df"><label>Cliente</label><p id="detCli">Familia Martínez</p></div>
+            <span id="detCondiciones" style="display:none"></span>
             <div class="df"><label>Descripción</label><p id="detDesc">Salón + dormitorio principal</p></div>
             <div class="df"><label>Fecha</label><p>10 mayo 2026</p></div>
             <div class="df"><label>Validez</label><p>30 días</p></div>
@@ -1194,6 +1195,29 @@ function selP(row){
   document.getElementById('emNum').textContent=num;
   document.getElementById('emTot').textContent=total+' €';
   document.getElementById('embox').classList.remove('open');
+  // Cargar condiciones si las tiene
+  var detCondEl=document.getElementById('detCondiciones');
+  if(detCondEl) detCondEl.textContent=row.dataset.cond||'';
+  // Cargar partidas reales en la tabla del detalle
+  var tbody=document.querySelector('.ptable tbody');
+  var tfoot=document.querySelector('.ptable tfoot');
+  if(tbody && row.dataset.partidas){
+    try{
+      var parts=JSON.parse(row.dataset.partidas);
+      tbody.innerHTML=parts.map(function(p){
+        return '<tr><td>'+p.d+'</td><td class="nr">'+p.u+'</td><td class="nr">'+parseFloat(p.p).toFixed(2)+' €</td><td class="nr ac">'+parseFloat(p.t).toFixed(2)+' €</td></tr>';
+      }).join('');
+      if(tfoot){
+        var sub=parseFloat(row.dataset.subtotal)||0;
+        var iva=parseFloat(row.dataset.iva)||21;
+        var ivaImp=parseFloat(row.dataset.ivaImp)||0;
+        var tot=parseFloat(total)||0;
+        tfoot.innerHTML='<tr><td colspan="3" style="text-align:right;color:var(--ink3)">Subtotal</td><td class="nr">'+sub.toFixed(2)+' €</td></tr>'
+          +'<tr><td colspan="3" style="text-align:right;color:var(--ink3)">IVA '+iva+'%</td><td class="nr">'+ivaImp.toFixed(2)+' €</td></tr>'
+          +'<tr><td colspan="3" style="text-align:right;font-weight:700">TOTAL</td><td class="nr ac" style="font-weight:700">'+tot.toFixed(2)+' €</td></tr>';
+      }
+    }catch(e){}
+  }
   document.getElementById('detPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
@@ -1239,8 +1263,86 @@ function calcTotal(){
 }
 function guardarNuevo(){
   var cli=document.getElementById('nCli').value.trim();
-  if(!cli){alert('Introduce el nombre del cliente.');return;}
-  notif('✅ Presupuesto guardado · Cliente: '+cli,'ok');
+  if(!cli){notif('⚠️ Escribe el nombre del cliente');return;}
+
+  // Recoger datos del formulario
+  var desc=document.getElementById('nDesc').value.trim()||'Sin descripción';
+  var dir=document.getElementById('nDir').value.trim();
+  var ivaVal=parseInt(document.getElementById('nIva').value)||21;
+  var condEl=document.getElementById('nCondiciones');
+  var cond=condEl?condEl.value.trim():'';
+
+  // Recoger partidas
+  var partidas=[];
+  var subtotal=0;
+  document.querySelectorAll('#partidaList .pr').forEach(function(row){
+    var ins=row.querySelectorAll('input');
+    var d=ins[0].value.trim();
+    var u=parseFloat(ins[1].value)||0;
+    var p=parseFloat(ins[2].value)||0;
+    var t=parseFloat((u*p).toFixed(2));
+    if(d||t>0){partidas.push({d:d,u:u,p:p,t:t});subtotal+=t;}
+  });
+
+  if(partidas.length===0){notif('⚠️ Añade al menos una partida');return;}
+
+  var iva=parseFloat((subtotal*ivaVal/100).toFixed(2));
+  var total=parseFloat((subtotal+iva).toFixed(2));
+
+  // Generar número
+  var presupsGuardados=JSON.parse(localStorage.getItem('pap_presups')||'[]');
+  var num='P-'+new Date().getFullYear()+'-'+(String(presupsGuardados.length+1).padStart(3,'0'));
+
+  // Objeto presupuesto
+  var pres={
+    num:num, cli:cli, desc:desc, dir:dir, cond:cond,
+    partidas:partidas, subtotal:subtotal, iva:ivaVal, ivaImp:iva,
+    total:total, fecha:new Date().toLocaleDateString('es'), estado:'pendiente',
+    ts:Date.now()
+  };
+
+  // Guardar en localStorage
+  presupsGuardados.unshift(pres);
+  localStorage.setItem('pap_presups',JSON.stringify(presupsGuardados));
+
+  // Añadir a la lista visual
+  var plist=document.querySelector('.plist');
+  if(plist){
+    var div=document.createElement('div');
+    div.className='prow';
+    div.id='pr_'+pres.ts;
+    div.dataset.num=num;
+    div.dataset.cli=cli;
+    div.dataset.desc=desc;
+    div.dataset.total=total.toFixed(2);
+    div.dataset.cond=cond;
+    div.dataset.partidas=JSON.stringify(partidas);
+    div.dataset.iva=ivaVal;
+    div.dataset.subtotal=subtotal.toFixed(2);
+    div.dataset.ivaImp=iva.toFixed(2);
+    div.innerHTML='<div class="pnum">'+num+'</div>'
+      +'<div><div class="pcli">'+cli+'</div><div class="pdesc">'+desc+(dir?' · '+dir:'')+'</div></div>'
+      +'<div><div class="pimp">'+total.toFixed(2)+' €</div><div class="badge bp">⏱ Pendiente</div></div>';
+    div.addEventListener('click',function(){selP(div);});
+    plist.insertBefore(div,plist.firstChild);
+    // Seleccionar el nuevo y cargar en detalle
+    selP(div);
+  }
+
+  // Actualizar panel detalle con condiciones
+  var detCondEl=document.getElementById('detCondiciones');
+  if(detCondEl) detCondEl.textContent=cond;
+
+  // Limpiar formulario
+  ['nCli','nDesc','nDir','nCondiciones'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var lista=document.getElementById('partidaList');
+  if(lista){lista.innerHTML='';} pCount=0;
+  addPartida();addPartida();calcTotal();
+
+  // Ir a pestaña presupuestos y generar PDF automáticamente
+  showP('presup',document.getElementById('tab-presup'));
+  notif('✅ Presupuesto '+num+' guardado — generando PDF...','ok');
+  setTimeout(generarPDF,600);
 }
 
 // ── CALCULADORA ──
