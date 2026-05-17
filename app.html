@@ -1975,23 +1975,32 @@ function notif(msg){
 }
 
 // ── INIT ──
-document.addEventListener('DOMContentLoaded',function(){
-  // Login
+// ── LOGIN: registrar SIEMPRE, independiente del resto ──
+window.addEventListener('load',function(){
+  var ba=document.getElementById('btnActivar');
+  var ci=document.getElementById('claveInput');
+  if(ba) ba.addEventListener('click',activarApp);
+  if(ci){
+    ci.addEventListener('keydown',function(e){if(e.key==='Enter')activarApp();});
+    ci.addEventListener('input',function(){formatClave(this);});
+  }
   var savedKey=localStorage.getItem('pap_clave');
   if(savedKey&&(CLAVES.includes(savedKey)||esClaveTrial(savedKey))){
-    mostrarApp();
-    comprobarTrial();
+    mostrarApp();comprobarTrial();
   }
-  document.getElementById('btnActivar').addEventListener('click',activarApp);
-  document.getElementById('claveInput').addEventListener('keydown',function(e){if(e.key==='Enter')activarApp();});
-  document.getElementById('claveInput').addEventListener('input',function(){formatClave(this);});
-  document.getElementById('btnMaestro').addEventListener('click',abrirMaestro);
+});
+
+document.addEventListener('DOMContentLoaded',function(){
+  // Login (redundante por seguridad)
+  var savedKey=localStorage.getItem('pap_clave');
+  try{document.getElementById('btnMaestro').addEventListener('click',abrirMaestro);}catch(e){}
   // PIN
   ['1','2','3','4','5','6','7','8','9','0'].forEach(function(n){document.getElementById('pk'+n).addEventListener('click',function(){pinPress(n);});});
   document.getElementById('pkDel').addEventListener('click',pinDel);
   document.getElementById('pkOk').addEventListener('click',pinOk);
   document.getElementById('pinBack').addEventListener('click',cerrarMaestro);
-  // Nav
+  // Nav — proteger con try/catch cada sección
+  try{
   document.getElementById('tab-presup').addEventListener('click',function(){showP('presup',this);});
   document.getElementById('tab-nuevo').addEventListener('click',function(){showP('nuevo',this);});
   document.getElementById('tab-clientes').addEventListener('click',function(){showP('clientes',this);});
@@ -2162,6 +2171,8 @@ document.addEventListener('DOMContentLoaded',function(){
     document.getElementById('nDesc').value='(Copia) '+desc;
     notif('📋 Datos duplicados — revisa y ajusta las partidas');
   });
+
+  }catch(e){console.error('Init error:',e);}
 
 });
 
