@@ -638,7 +638,13 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
           <div class="fi full"><label>Descripción</label><div style="display:flex;gap:5px"><input type="text" id="nDesc" placeholder="Ej: Pintura salón y dormitorios" style="flex:1"><button class="mic-btn-sm" id="micDesc"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div></div>
           <div class="fi"><label>Dirección</label><div style="display:flex;gap:5px"><input type="text" id="nDir" placeholder="Calle, número, localidad" style="flex:1"><button class="mic-btn-sm" id="micDir"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div></div>
           <div class="fi"><label>IVA</label><select id="nIva"><option value="21">IVA 21%</option><option value="10">IVA 10%</option><option value="7">IGIC 7%</option><option value="0">Sin IVA</option></select></div>
-          <div class="fi full"><label>Condiciones del presupuesto <span style="font-size:10px;color:var(--ink3);font-weight:400">(aparece en el PDF antes y después de las partidas)</span></label><textarea id="nCondiciones" rows="4" placeholder="Ej: Trabajos a Realizar: Se procederá al tratamiento integral..." style="width:100%;padding:9px;background:var(--s);border:1.5px solid var(--b);border-radius:7px;color:var(--ink);font-size:11px;font-family:var(--fb);resize:vertical;line-height:1.5"></textarea></div>
+          <div class="fi full">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <label style="margin-bottom:0">Condiciones del presupuesto <span style="font-size:10px;color:var(--ink3);font-weight:400">(opcional — sale en el PDF)</span></label>
+              <button type="button" onclick="abrirNuevaPlantillaTxt()" style="font-size:10px;padding:3px 8px;background:none;border:1px solid var(--o);border-radius:5px;color:var(--o);cursor:pointer;font-family:var(--fb);font-weight:600;white-space:nowrap">📋 Mis textos</button>
+            </div>
+            <textarea id="nCondiciones" rows="3" placeholder="Opcional: describe los trabajos, condiciones y proceso de adjudicación..." style="width:100%;padding:9px;background:var(--s);border:1.5px solid var(--b);border-radius:7px;color:var(--ink);font-size:11px;font-family:var(--fb);resize:vertical;line-height:1.5"></textarea>
+          </div>
         </div>
       </div>
       <div class="card">
@@ -966,16 +972,15 @@ function verTxtPro(id) {
   document.getElementById('btnBorrarTxt').style.display = t.fija ? 'none' : 'block';
   document.getElementById('modalVerTxt').style.display = 'flex';
   document.getElementById('btnInsertarTxt').onclick = function() {
-    var obs = document.getElementById('nObs');
-    if (obs) {
-      obs.value = obs.value ? obs.value + '\n\n' + t.body : t.body;
-    } else {
-      // Si no hay campo observaciones, insertar en descripción
-      var desc = document.getElementById('nDesc');
-      if (desc) desc.value = desc.value ? desc.value + ' — ' + t.nom : t.nom;
+    // Insertar siempre en el campo Condiciones del presupuesto
+    var cond = document.getElementById('nCondiciones');
+    if (cond) {
+      cond.value = cond.value ? cond.value + '\n\n' + t.body : t.body;
+      // Scroll al campo para que el pintor lo vea
+      cond.scrollIntoView({behavior:'smooth', block:'center'});
     }
     cerrarVerTxt();
-    toast('✓ Texto insertado en el presupuesto');
+    toast('✓ Texto insertado en Condiciones del presupuesto');
   };
   document.getElementById('btnBorrarTxt').onclick = function() {
     if (!confirm('¿Borrar esta plantilla?')) return;
@@ -1968,6 +1973,7 @@ document.addEventListener('DOMContentLoaded',function(){
   initSelectTarifas();
   document.getElementById('btnAddTarifa').addEventListener('click',addTarifaPartida);
   document.getElementById('btnGuardarNuevo').addEventListener('click',guardarNuevo);
+
   document.getElementById('btnCancelarNuevo').addEventListener('click',function(){showP('presup',document.getElementById('tab-presup'));});
   document.getElementById('btnMicPartida').addEventListener('click',micPartida);
   document.getElementById('micGlobal').addEventListener('click',toggleMicGlobal);
