@@ -581,6 +581,7 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
           <button class="btn" onclick="usarPlantilla('escalera')" style="font-size:12px;padding:7px 11px">🪜 Escalera</button>
           <button class="btn" onclick="usarPlantilla('local')" style="font-size:12px;padding:7px 11px">🏪 Local</button>
           <button class="btn" id="btnDuplicar" style="font-size:12px;padding:7px 11px">📋 Duplicar último</button>
+          <button class="btn" onclick="usarPlantilla('ejemplo')" style="font-size:12px;padding:7px 11px;background:var(--o);color:#fff;border-color:var(--o)">📄 Ver ejemplo completo</button>
         </div>
         <div style="font-size:11px;color:var(--ink3)">Elige una plantilla o duplica el último presupuesto y retoca los datos.</div>
       </div>
@@ -636,6 +637,7 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
           <div class="fi full"><label>Descripción</label><div style="display:flex;gap:5px"><input type="text" id="nDesc" placeholder="Ej: Pintura salón y dormitorios" style="flex:1"><button class="mic-btn-sm" id="micDesc"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div></div>
           <div class="fi"><label>Dirección</label><div style="display:flex;gap:5px"><input type="text" id="nDir" placeholder="Calle, número, localidad" style="flex:1"><button class="mic-btn-sm" id="micDir"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div></div>
           <div class="fi"><label>IVA</label><select id="nIva"><option value="21">IVA 21%</option><option value="10">IVA 10%</option><option value="7">IGIC 7%</option><option value="0">Sin IVA</option></select></div>
+          <div class="fi full"><label>Condiciones del presupuesto <span style="font-size:10px;color:var(--ink3);font-weight:400">(aparece en el PDF antes y después de las partidas)</span></label><textarea id="nCondiciones" rows="4" placeholder="Ej: Trabajos a Realizar: Se procederá al tratamiento integral..." style="width:100%;padding:9px;background:var(--s);border:1.5px solid var(--b);border-radius:7px;color:var(--ink);font-size:11px;font-family:var(--fb);resize:vertical;line-height:1.5"></textarea></div>
         </div>
       </div>
       <div class="card">
@@ -1542,6 +1544,29 @@ function _buildPDF(){
   doc.text(desc,margin+80,y+14,{maxWidth:95});
   y+=30;
 
+  // ── CONDICIONES (bloque superior si las hay) ──
+  var condiciones='';
+  var condEl=document.getElementById('nCondiciones');
+  var detCondEl=document.getElementById('detCondiciones');
+  if(detCondEl && detCondEl.textContent.trim()) condiciones=detCondEl.textContent.trim();
+  else if(condEl && condEl.value.trim()) condiciones=condEl.value.trim();
+
+  if(condiciones){
+    // Fondo muy suave
+    doc.setFillColor(250,249,247);
+    doc.setDrawColor(232,101,10);
+    doc.setLineWidth(0.3);
+    // Dividir texto en lineas
+    var condLines=doc.splitTextToSize(condiciones, W-margin*2-8);
+    var condH=condLines.length*4.2+10;
+    doc.roundedRect(margin,y,W-margin*2,condH,2,2,'FD');
+    doc.setTextColor(80,40,10);doc.setFontSize(7);doc.setFont('helvetica','bold');
+    doc.text('CONDICIONES Y ALCANCE DE LOS TRABAJOS',margin+4,y+5);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(40,40,40);
+    doc.text(condLines,margin+4,y+10);
+    y+=condH+6;
+  }
+
   // ── TABLA PARTIDAS ──
   // Cabecera tabla
   doc.setFillColor(rgb[0],rgb[1],rgb[2]);
@@ -1683,7 +1708,7 @@ function vaciarDatos(){
   }
   CLIENTES.length=0;DATOS_MUESTRA.clientes.forEach(function(c){CLIENTES.push(c);});renderClientes();
   var pl=document.getElementById('partidaList');if(pl){pl.innerHTML='';pCount=0;addPartida();addPartida();calcTotal();}
-  ['nCli','nDesc','nDir'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  ['nCli','nDesc','nDir','nCondiciones'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   showP('presup',document.getElementById('tab-presup'));
   setTimeout(function(){alert('✅ Datos reiniciados.\n\nSe han cargado 2 ejemplos de muestra para que veas cómo funciona la app.');},200);
 }
@@ -1994,21 +2019,65 @@ var PLANTILLAS={
       {d:'Transporte y medios auxiliares',u:'1',p:'120'},
       {d:'Limpieza final',u:'1',p:'80'}
     ]
+  },
+  ejemplo:{
+    nombre:'Pintura vivienda completa (EJEMPLO)',
+    cliente:'Familia Martínez Ruiz',
+    direccion:'Calle Mayor 15, 3º A — Lleida',
+    condiciones:'TRABAJOS A REALIZAR:
+Se procederá al tratamiento integral de paramentos horizontales y verticales (techos y paredes) en todas las dependencias de la vivienda, siguiendo este riguroso protocolo de actuación:
+
+1. Fase de Saneado: Revisión minuciosa de toda la superficie para detectar y eliminar desconchones o pintura antigua no adherida, garantizando una base sólida.
+
+2. Tratamiento de Patologías: Emplastecido mecánico y manual de grietas, fisuras y golpes para recuperar la planimetía original de las paredes.
+
+3. Puente de Unión: Aplicación de fijador sellador de alta penetración sobre superficies saneadas para consolidar el soporte y garantizar una adherencia máxima de la pintura.
+
+4. Acabado de Calidad: Aplicación de dos manos de pintura plástica de alta cubrión en todas las estancias, respetando los tiempos de secado entre capas según la elección de color del cliente.
+
+---
+
+CONDICIONES DE EJECUCIÓN:
+Dichos trabajos se realizarán con la máxima pulcritud y protección de estancias y enseres que se requieran antes de su pintado, como marcos y suelo.
+
+---
+
+PROCESO DE ADJUDICACIÓN:
+Una vez aceptado el presupuesto, la empresa adjudica el trabajo en el orden en que los clientes han aceptado los presupuestos. Esto significa que los proyectos se programan y ejecutan según el orden de aceptación, garantizando un proceso justo y organizado.',
+    partidas:[
+      {d:'Salón / Comedor — Paredes (2 manos pintura plástica)',u:'65',p:'7.50'},
+      {d:'Salón / Comedor — Techo (2 manos)',u:'22',p:'9.00'},
+      {d:'Dormitorio principal — Paredes',u:'48',p:'7.50'},
+      {d:'Dormitorio principal — Techo',u:'14',p:'9.00'},
+      {d:'Dormitorio 2 — Paredes',u:'40',p:'7.50'},
+      {d:'Dormitorio 2 — Techo',u:'12',p:'9.00'},
+      {d:'Pasillo — Paredes y techo',u:'35',p:'8.00'},
+      {d:'Baño — Techo y zona pintable',u:'12',p:'10.00'},
+      {d:'Cocina — Techo',u:'10',p:'10.00'},
+      {d:'Puertas y carpintería (esmalte satinado, 2 manos)',u:'8',p:'65.00'},
+      {d:'Rodapiés y marcos (esmalte)',u:'1',p:'180.00'}
+    ]
   }
 };
 
 function usarPlantilla(tipo){
   var pl=PLANTILLAS[tipo];if(!pl)return;
-  // Navegar a pestana Nuevo si no esta activa
+  // Navegar a pestana Nuevo
   showP('nuevo',document.getElementById('tab-nuevo'));
-  // Limpiar partidas actuales
+  // Limpiar partidas
   var lista=document.getElementById('partidaList');
   if(lista){lista.innerHTML='';}
   pCount=0;
-  // Poner descripcion
+  // Rellenar campos
   var descEl=document.getElementById('nDesc');
-  if(descEl&&!descEl.value) descEl.value=pl.nombre;
-  // Anadir partidas con delay para asegurar visibilidad DOM
+  var cliEl=document.getElementById('nCli');
+  var dirEl=document.getElementById('nDir');
+  var condEl=document.getElementById('nCondiciones');
+  if(descEl) descEl.value=pl.nombre;
+  if(cliEl && pl.cliente) cliEl.value=pl.cliente;
+  if(dirEl && pl.direccion) dirEl.value=pl.direccion;
+  if(condEl) condEl.value=pl.condiciones||'';
+  // Añadir partidas
   setTimeout(function(){
     pl.partidas.forEach(function(p){addPartida(p.d,p.u,p.p);});
     calcTotal();
