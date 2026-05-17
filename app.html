@@ -634,6 +634,7 @@ html,body{font-family:var(--fb);background:var(--s);color:var(--ink);min-height:
         <div class="ctitle">Datos del cliente y obra</div>
         <div class="fgrid">
           <div class="fi"><label>Cliente</label><div style="display:flex;gap:5px"><input type="text" id="nCli" placeholder="Nombre o empresa" style="flex:1"><button class="mic-btn-sm" id="micCli"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div></div>
+          <div class="fi"><label>Teléfono WhatsApp cliente</label><input type="tel" id="nTel" placeholder="+34 6XX XXX XXX"></div>
           <div class="fi"><label>Email</label><input type="email" id="nEmail" placeholder="cliente@email.com"></div>
           <div class="fi full"><label>Descripción</label><div style="display:flex;gap:5px"><input type="text" id="nDesc" placeholder="Ej: Pintura salón y dormitorios" style="flex:1"><button class="mic-btn-sm" id="micDesc"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div></div>
           <div class="fi"><label>Dirección</label><div style="display:flex;gap:5px"><input type="text" id="nDir" placeholder="Calle, número, localidad" style="flex:1"><button class="mic-btn-sm" id="micDir"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button></div></div>
@@ -1276,6 +1277,7 @@ function guardarNuevo(){
   var ivaVal=parseInt(document.getElementById('nIva').value)||21;
   var condEl=document.getElementById('nCondiciones');
   var cond=condEl?condEl.value.trim():'';
+  var tel=document.getElementById('nTel')?document.getElementById('nTel').value.trim():'';
 
   // Recoger partidas
   var partidas=[];
@@ -1300,7 +1302,7 @@ function guardarNuevo(){
 
   // Objeto presupuesto
   var pres={
-    num:num, cli:cli, desc:desc, dir:dir, cond:cond,
+    num:num, cli:cli, desc:desc, dir:dir, cond:cond, tel:tel,
     partidas:partidas, subtotal:subtotal, iva:ivaVal, ivaImp:iva,
     total:total, fecha:new Date().toLocaleDateString('es'), estado:'pendiente',
     ts:Date.now()
@@ -1339,7 +1341,7 @@ function guardarNuevo(){
   if(detCondEl) detCondEl.textContent=cond;
 
   // Limpiar formulario
-  ['nCli','nDesc','nDir','nCondiciones'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  ['nCli','nDesc','nDir','nEmail','nTel','nCondiciones'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   var lista=document.getElementById('partidaList');
   if(lista){lista.innerHTML='';} pCount=0;
   addPartida();addPartida();calcTotal();
@@ -1696,10 +1698,30 @@ function _buildPDF(){
   doc.text('TOTAL',W-margin-2,y+4.5,{align:'right'});
   y+=7;
 
-  // Partidas desde la tabla del detalle
+  // Partidas desde la tabla del detalle — con paginación automática
   var filas=document.querySelectorAll('.ptable tbody tr');
   var subtotal=0;
   var fillAlt=false;
+  var pageH=297; // A4 altura mm
+  var bottomMargin=20; // margen inferior
+
+  function checkPageBreak(altura){
+    if(y+altura > pageH-bottomMargin){
+      doc.addPage();
+      y=15;
+      // Repetir cabecera tabla en nueva página
+      doc.setFillColor(rgb[0],rgb[1],rgb[2]);
+      doc.rect(margin,y,W-margin*2,7,'F');
+      doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');
+      doc.text('DESCRIPCIÓN',margin+2,y+4.5);
+      doc.text('UD',margin+100,y+4.5,{align:'right'});
+      doc.text('PRECIO',margin+130,y+4.5,{align:'right'});
+      doc.text('TOTAL',W-margin-2,y+4.5,{align:'right'});
+      y+=7;
+      fillAlt=false;
+    }
+  }
+
   filas.forEach(function(row){
     var celdas=row.querySelectorAll('td');
     if(celdas.length<4) return;
@@ -1710,6 +1732,7 @@ function _buildPDF(){
     var val=parseFloat(ftotal.replace(/[^0-9.,]/g,'').replace(',','.'))||0;
     subtotal+=val;
 
+    checkPageBreak(7);
     if(fillAlt){doc.setFillColor(250,249,247);doc.rect(margin,y,W-margin*2,7,'F');}
     fillAlt=!fillAlt;
 
@@ -1805,7 +1828,13 @@ function enviarEmail(){
   var num=document.getElementById('detNum')?document.getElementById('detNum').textContent:'';
   var total=document.getElementById('detTotal')?document.getElementById('detTotal').textContent:'';
   var cuerpo=msg+'\n\n--- Resumen del presupuesto ---\nNúmero: '+num+'\nImporte total: '+total+' €\n\n--- '+empresa+(perfil.tel?'\nTeléfono: '+perfil.tel:'')+(perfil.email?'\nEmail: '+perfil.email:'')+'---\n\nGenerado con PintorApp Pro';
-  window.location.href='mailto:'+encodeURIComponent(dest)+'?subject='+encodeURIComponent(asunto)+'&body='+encodeURIComponent(cuerpo);
+  // Usar elemento <a> para forzar cliente de correo nativo
+  var mailLink=document.createElement('a');
+  mailLink.href='mailto:'+dest+'?subject='+encodeURIComponent(asunto)+'&body='+encodeURIComponent(cuerpo);
+  mailLink.style.display='none';
+  document.body.appendChild(mailLink);
+  mailLink.click();
+  setTimeout(function(){document.body.removeChild(mailLink);},1000);
   document.getElementById('embox').classList.remove('open');
   notif('📧 Abriendo tu app de correo...','ok');
 }
@@ -1826,7 +1855,7 @@ function vaciarDatos(){
   }
   CLIENTES.length=0;DATOS_MUESTRA.clientes.forEach(function(c){CLIENTES.push(c);});renderClientes();
   var pl=document.getElementById('partidaList');if(pl){pl.innerHTML='';pCount=0;addPartida();addPartida();calcTotal();}
-  ['nCli','nDesc','nDir','nCondiciones'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  ['nCli','nDesc','nDir','nEmail','nTel','nCondiciones'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   showP('presup',document.getElementById('tab-presup'));
   setTimeout(function(){alert('✅ Datos reiniciados.\n\nSe han cargado 2 ejemplos de muestra para que veas cómo funciona la app.');},200);
 }
@@ -2048,7 +2077,19 @@ document.addEventListener('DOMContentLoaded',function(){
     var pago=pagoCustom||pagoSel;
     var pagotxt=pago?'\n💳 Forma de pago: '+pago:'';
     var texto='Hola '+cli+' 👋\n\nTe envío el presupuesto *'+num+'* por un importe de *'+tot+' €*.\n✅ Válido durante 30 días.'+pagotxt+'\n\nSi te encaja, confírmame por aquí y lo dejamos reservado. A continuación te envío el presupuesto en PDF.\n\n— '+empresa+(p.tel?' · '+p.tel:'');
-    window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank');
+    // Intentar abrir WhatsApp con el número del cliente si está disponible
+    var telCliente='';
+    // Buscar en los presupuestos guardados el teléfono del cliente actual
+    try{
+      var presups=JSON.parse(localStorage.getItem('pap_presups')||'[]');
+      var numActual=document.getElementById('detNum').textContent;
+      var presActual=presups.find(function(p){return p.num===numActual;});
+      if(presActual && presActual.tel) telCliente=presActual.tel.replace(/[^0-9+]/g,'');
+    }catch(e){}
+    var waUrl=telCliente
+      ? 'https://wa.me/'+telCliente+'?text='+encodeURIComponent(texto)
+      : 'https://wa.me/?text='+encodeURIComponent(texto);
+    window.open(waUrl,'_blank');
   });
 
   // ── MARCAR ACEPTADO ──
